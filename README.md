@@ -1,2 +1,4 @@
 # jgbutils
-Utilities for genomic analysis
+##Utilities for genomic analysis
+Included here are various utilities developed by me for genomic analysis. I have separated these utilities by project, then by use. Most programs are written in Python 2.7 or R. Documentation is largely incomplete -- read the first few lines of a script if the command line inputs are unclear.
+
