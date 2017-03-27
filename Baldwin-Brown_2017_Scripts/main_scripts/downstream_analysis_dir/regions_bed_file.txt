@@ -1,0 +1,13 @@
+ctg7180000000836|quiver|quiver|quiver	2920924	2921932	locus 7
+ctg7180000000836|quiver|quiver|quiver	8446195	8447185	locus 8
+ctg7180000000558|quiver|quiver|quiver	7960416	7961229	locus 1
+ctg7180000000558|quiver|quiver|quiver	11807826	11808199	locus 2
+ctg7180000000558|quiver|quiver|quiver	18205260	18209499	locus 3
+ctg7180000000558|quiver|quiver|quiver	28626428	28634469	locus 4
+ctg7180000000558|quiver|quiver|quiver	41068869	41081593	locus 5
+ctg7180000000550|quiver|quiver|quiver	5849715	5855825	locus 6
+ctg7180000000808|quiver|quiver|quiver	2113389	2117449	locus 9
+ctg7180000000808|quiver|quiver|quiver	3903601	3908963	locus 10
+ctg7180000000826|quiver|quiver|quiver	1318371	1320640	locus 11
+Backbone_15/0_937430|quiver|quiver|quiver	369628	420280	locus 12
+Backbone_15/0_937430|quiver|quiver|quiver	791618	817899	locus 13
