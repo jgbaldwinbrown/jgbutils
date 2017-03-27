@@ -48,16 +48,26 @@ def all_pairwise_tests(count,n,func):
     indata = zip(count,n)
     numpops = len(indata)
     for i in enumerate(indata):
-        ii = i[0]
-        ic = i[1][0]
-        in = i[1][1]
-        for j in enumerate(indata[ii+1:]):
-            ji = j[0]
-            jc = j[1][0]
-            jn = j[1][1]
-            col = (in,ic,jn,jc)
-            fstarray[(ii,ji)] = func(col)
+        i_i = i[0]
+        i_c = i[1][0]
+        i_n = i[1][1]
+        for j in enumerate(indata[i_i+1:]):
+            j_i = j[0] + 1 + i_i
+            j_c = j[1][0]
+            j_n = j[1][1]
+            col = (i_n,i_c,j_n,j_c)
+            fstarray[(i_i,j_i)] = func(col)
     return fstarray
+
+def mean(l): 
+    return(float(sum(l))/len(l) if len(l) > 0 else float('nan'))
+
+def flatten_sparse(smat):
+    temp = []
+    keys = sorted(smat)
+    for i in keys:
+        temp.append(smat[i][0])
+    return(temp)
 
 def str2int_NA(value):
     try:
