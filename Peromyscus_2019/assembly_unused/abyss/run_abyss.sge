@@ -1,0 +1,19 @@
+#!/bin/bash
+#$ -N abyss_pero
+#$ -pe openmp 64
+#$ -R y
+#$ -q bio,pub64,abio,free64
+#$ -ckpt blcr
+##$ -l kernel=blcr
+##$ -r y
+
+cd $SGE_O_WORKDIR
+
+module load bowtie2
+module load abyss
+
+#PATH=$PATH:/dfs1/test/bio/jbaldwi1/programs/lsc/LSC_1_alpha/LSC_1_alpha/example/example/bin/
+
+#/dfs1/test/bio/jbaldwi1/programs/lsc/LSC_1_alpha/LSC_1_alpha/example/example/bin/runLSC.py run.cfg
+
+abyss-pe name=arabidopsis_abyss np=64 v=-v k=51 j=64 in='/dfs2/temp/bio/jbaldwi1/peromyscus_data/data/illumina/combo/split/pero_forward_combo.fq.gz /dfs2/temp/bio/jbaldwi1/peromyscus_data/data/illumina/combo/split/pero_reverse_combo_mod_for_abyss.fq.gz'

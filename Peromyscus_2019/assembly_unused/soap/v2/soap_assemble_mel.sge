@@ -1,0 +1,19 @@
+#!/bin/bash
+#$ -N soap_pero
+#$ -pe openmp 32-64
+#$ -R y
+#$ -q bio,abio,pub64,free64
+#$ -ckpt blcr
+
+cd $SGE_O_WORKDIR
+
+# module load openmpi-gcc/1.4.4
+
+#export PATH=$PATH:/gl/bio/jbaldwi1/programs/soapdenovo/
+#export PATH=$PATH:/gl/bio/jbaldwi1/programs/soaperrorcorrector/SOAPec_v2.01/bin
+
+#export PATH=$PATH:/bio/jbaldwi1/programs/soapdenovo/new/precompiled_r240/SOAPdenovo2-bin-LINUX-generic-r240
+
+module load soap/2.20
+
+SOAPdenovo-63mer all -s soap_denovo_config.txt -p $CORES -K 51 -R -o pero_assembly_soap 1> pero_assembly_soap_log.txt 2> pero_assembly_soap_err.txt
