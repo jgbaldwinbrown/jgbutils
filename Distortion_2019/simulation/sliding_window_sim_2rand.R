@@ -71,7 +71,8 @@ structured <- function(x){
 
 my_treat_anova <- function(ab){
     #print(paste("anova starting:", Sys.time()))
-    out = aov(data=ab,formula=value~treat+variable+pos)
+    out = aov(data=ab,formula=value~treat+Error(variable+pos))
+    print(names(unlist(summary(out))))
     #print(paste("anova done:", Sys.time()))
     return(out)
 }
@@ -79,7 +80,8 @@ my_pval_treat <- function(my_aov){
     #print(paste("pval starting:", Sys.time()))
     #print(summary(my_aov))
     #str(summary(my_aov))
-    out = summary(my_aov)[[1]]["Pr(>F)"][1]
+    out = unlist(summary(my_aov))["Error: Within.Pr(>F)1"]
+    #out = summary(my_aov)[[1]]["Pr(>F)"][1]
     #print(paste("pval done:", Sys.time()))
     return(out)
 }
@@ -119,7 +121,7 @@ my_structured_2random_anova <- function(x){
     return(my_2random_anova(structured(x)))
 }
 my_2random_anova <- function(ab){
-    return(aov(data=ab,formula=value~treat+Error(pos+variable)))
+    return(aov(data=ab,formula=value~treat+pos+variable))
 }
 my_pval <- function(my_aov){
     return(summary(my_aov)[[2]][[1]]["Pr(>F)"][[1]][1])
