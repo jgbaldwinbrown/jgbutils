@@ -1,11 +1,10 @@
 #!/usr/bin/env Rscript
 
 #test how to use anova in windows:
-library(reshape2)
-library(zoo)
-library(ggplot2)
-
 suppressPackageStartupMessages(library("argparse"))
+suppressPackageStartupMessages(library("reshape2"))
+suppressPackageStartupMessages(library("zoo"))
+suppressPackageStartupMessages(library("ggplot2"))
 
 # create parser object
 parser <- ArgumentParser()
@@ -50,11 +49,8 @@ pdf_out = args$pdf_out
 pdf_title = args$pdf_title
 reps = args$reps
 
-my_structured_anova <- function(x){
-    return(my_anova(structured(x)))
-}
-
 structured <- function(x){
+    #print(paste("structured starting:", Sys.time()))
     ax <- x[,1]
     a <- data.frame(pos=as.character(1:length(ax)),treat=rep("a",length(ax)),variable=rep("X0",length(ax)),value=ax)
     bx <- x[,2:ncol(x)]
@@ -64,18 +60,58 @@ structured <- function(x){
     #print(head(a))
     #print(head(bd))
     #print(head(bdm))
+    #print(head(ab))
+    #print(str(ab))
+    #print(paste("structured done:", Sys.time()))
     return(ab)
 }
-my_anova <- function(ab){
-    return(aov(data=ab,formula=value~variable+pos))
+
+my_treat_anova <- function(ab){
+    #print(paste("anova starting:", Sys.time()))
+    out = aov(data=ab,formula=value~treat+variable+pos)
+    #print(paste("anova done:", Sys.time()))
+    return(out)
 }
-#B + (1 | A:B)
-my_structured_nested_random_anova <- function(x){
-    return(my_anova(structured(x)))
+my_pval_treat <- function(my_aov){
+    #print(paste("pval starting:", Sys.time()))
+    #print(summary(my_aov))
+    #str(summary(my_aov))
+    out = summary(my_aov)[[1]]["Pr(>F)"][1]
+    #print(paste("pval done:", Sys.time()))
+    return(out)
 }
-my_nested_random_anova <- function(ab){
-    return(aov(data=ab,formula=value~variable+pos))
+my_structured_treat_anova_pval <- function(x){
+    #print(paste("structured_treat_anova_pval starting:", Sys.time()))
+    out = my_pval_treat(my_treat_anova(structured(x)))
+    #print(paste("structured_treat_anova_pval done:", Sys.time()))
+    return(out)
 }
+multitest_treat_anova <- function(x,excols,concols){
+    #print(paste("multitest starting:", Sys.time()))
+    out=rep(NA,length(excols))
+    for (i in excols) {
+        #print(paste("multitest loop starting:", Sys.time()))
+        out[i] <- my_structured_treat_anova_pval(x[,c(excols[i],concols)])
+        #print(paste("multitest loop done:", Sys.time()))
+    }
+    #print(paste("multitest done:", Sys.time()))
+    return(out)
+}
+roll_multitest_treat <- function(x,excols,concols,size,step){
+    my_half <- round((size-1) / 2)
+    my_starts <- seq(1,nrow(x)-(size-1),by=step)
+    my_ends <- my_starts+(size-1)
+    my_mids <- my_starts + my_half
+    tempout <- as.data.frame(matrix(ncol=length(excols),nrow=length(my_starts)))
+    for (i in 1:nrow(tempout)){
+        tempout[i,] <- multitest_treat_anova(x[my_starts[i]:my_ends[i],],excols,concols)
+    }
+    out <- as.data.frame(cbind(my_starts,my_ends,my_mids,tempout))
+    #print(paste("roll_multi done:", Sys.time()))
+    return(out)
+}
+
+
 my_structured_2random_anova <- function(x){
     return(my_2random_anova(structured(x)))
 }
@@ -88,7 +124,6 @@ my_pval <- function(my_aov){
 my_structured_2random_anova_pval <- function(x){
     return(my_pval(my_structured_2random_anova(x)))
 }
-
 multitest_2random_anova <- function(x,excols,concols){
     out=rep(NA,length(excols))
     for (i in excols) {
@@ -96,7 +131,6 @@ multitest_2random_anova <- function(x,excols,concols){
     }
     return(out)
 }
-
 roll_multitest <- function(x,excols,concols,size,step){
     my_half <- round((size-1) / 2)
     my_starts <- seq(1,nrow(x)-(size-1),by=step)
@@ -110,6 +144,7 @@ roll_multitest <- function(x,excols,concols,size,step){
     return(out)
 }
 
+
 set.seed(seed = rseed)
 means <- rnorm(gensize)
 b <- t(sapply(means,function(x){rnorm(reps,mean=x)}))
@@ -118,16 +153,7 @@ a2 <- t(sapply(means[(treatsize+1):gensize],function(x){rnorm(1,mean=x+distortio
 a <- c(a1,a2)
 
 new2_ab <- cbind(a,b)
-
-#rollmultitemp4 <- roll_multitest(new2_ab,1,2:ncol(new2_ab),100,3)
-#plot((1:nrow(rollmultitemp4))*3,-log10(rollmultitemp4$V1),xlab = "Position (simulated)",ylab="-log(p) (simulated)")
-
-rollmultitemp5 <- roll_multitest(new2_ab,1,2:ncol(new2_ab),winsize,winstep)
-#about .0005 snps per bp?
-#so, 
-#ap = ggplot(data=rollmultitemp5,aes(my_mids,V1))+
-#    geom_line()
-#ap
+rollmultitemp5 <- roll_multitest_treat(new2_ab,1,2:ncol(new2_ab),winsize,winstep)
 
 write.table(rollmultitemp5,txt_out)
 
@@ -138,7 +164,7 @@ ap = ggplot(data=rollmultitemp5,aes(bps_per_hetsnp*my_mids,-log10(V1)))+
     geom_rect(mapping = aes(xmin=(bps_per_hetsnp * (gensize - treatsize)),xmax=(bps_per_hetsnp * gensize),ymin=0,ymax=6,fill="red"),color="red",alpha=0.002)+
     scale_fill_discrete(name="",breaks=c("red"),labels=c("Allele frequencies distorted"))+
     theme(legend.position="bottom")
-ap
+
 pdf(pdf_out,height=3,width=4)
 ap
 dev.off()
