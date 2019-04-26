@@ -26,6 +26,8 @@ parser$add_argument("-b", "--bps_per_hetsnp", type="integer", default=2000,
     help="Basepairs per heterozygous SNP (default=2000).")
 parser$add_argument("-d", "--distortion_frac", type="double", default=0.1, 
     help="Degree of distortion as a fraction of allele frequency(default=0.1).")
+parser$add_argument("-O", "--simulation_data_out", default="out_sim.txt", 
+    help="Path to simulation data output file (default=out_sim.txt).")
 parser$add_argument("-o", "--txt_out", default="out.txt", 
     help="Path to text output file (default=out.txt).")
 parser$add_argument("-p", "--pdf_out", default="out.pdf", 
@@ -45,6 +47,7 @@ winstep = args$winstep
 bps_per_hetsnp = args$bps_per_hetsnp
 distortion_frac = args$distortion_frac
 txt_out = args$txt_out
+txt_sim_out = args$simulation_data_out
 pdf_out = args$pdf_out
 pdf_title = args$pdf_title
 reps = args$reps
@@ -156,6 +159,8 @@ a2 <- t(sapply(means[(treatsize+1):gensize],function(x){rnorm(1,mean=x+distortio
 a <- c(a1,a2)
 
 new2_ab <- cbind(a,b)
+write.table(new2_ab, txt_sim_out)
+
 rollmultitemp5 <- roll_multitest_treat(new2_ab,1,2:ncol(new2_ab),winsize,winstep)
 
 write.table(rollmultitemp5,txt_out)
