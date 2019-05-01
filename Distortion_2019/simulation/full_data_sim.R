@@ -20,10 +20,8 @@ parser$add_argument("-g", "--gensize", type="integer", default=2000,
     help="Number of heterozygous SNPs in the genome (default=2000).")
 parser$add_argument("-t", "--treatsize", type="integer", default=1000, 
     help="Number of heterozygous SNPs in the distorted region (default=1000).")
-parser$add_argument("-w", "--winsize", type="integer", default=1001, 
-    help="Size of sliding window in number of heterozygous SNPs (default=1001).")
-parser$add_argument("-s", "--winstep", type="integer", default=300, 
-    help="Step distance of sliding window (default=300).")
+parser$add_argument("-c", "--chroms", type="integer", default=4, 
+    help="Number of chromosomes per genome(default=4).")
 parser$add_argument("-b", "--bps_per_hetsnp", type="integer", default=2000, 
     help="Basepairs per heterozygous SNP (default=2000).")
 parser$add_argument("-d", "--distortion_frac", type="double", default=0.1, 
@@ -54,6 +52,7 @@ pdf_out = args$pdf_out
 pdf_title = args$pdf_title
 reps = args$reps
 sperm_reps = args$sperm_reps
+nchroms = args$chroms
 
 structured <- function(x){
     #print(paste("structured starting:", Sys.time()))
@@ -174,8 +173,8 @@ b = melt(b)
 b$tissue = rep("blood",nrow(b))
 
 new2_ab = rbind(a,b)
-new2_ab$chrom = rep(rep(seq(1,4), each =  gensize / 4), nrow(new2_ab) / gensize)
-gcs = rnorm(n=4)
+new2_ab$chrom = rep(rep(seq(1,nchroms), each =  gensize / nchroms), nrow(new2_ab) / gensize)
+gcs = rnorm(n=nchroms)
 new2_ab$gc = sapply(new2_ab$chrom, function(x){gcs[x]})
 new2_ab$chrom = factor(new2_ab$chrom)
 new2_ab$sample = rep(seq(1,nrow(new2_ab) / gensize), each = gensize)
