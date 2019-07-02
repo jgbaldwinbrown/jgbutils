@@ -54,21 +54,30 @@ sperm_reps = args$sperm_reps
 nchroms = args$chroms
 avgcov = args$average_coverage
 
+# set random seed
 set.seed(seed = rseed)
 
+# generate mean for each locus
 means <- rnorm(gensize)
+
+# generate a set of identical sperm samples
 b <- t(sapply(means, function(x){rep(x, reps)}))
+# generate a set of identical blood samples
 a <- t(sapply(means, function(x){rep(x, reps)}))
 
 colnames(a) = 1:ncol(a)
 colnames(b) = 1:ncol(b)
 
+# melt sperm and blood samples, name them
 a=melt(a)
 a$tissue = rep("sperm", nrow(a))
 b=melt(b)
 b$tissue = rep("blood", nrow(b))
 
+# combine blood and sperm samples
 new2_ab = as.data.frame(rbind(a,b))
+
+# specify chromosomes for all samples
 new2_ab$chrom = rep(
     rep(
         seq(1,nchroms),
@@ -76,16 +85,33 @@ new2_ab$chrom = rep(
     ),
     nrow(new2_ab) / gensize
 )
+
+# generate per-chromosome gc bias values, add to data
 gcs = rnorm(n=nchroms)
 new2_ab$gc = sapply(new2_ab$chrom, function(x){gcs[x]})
+
+# make sure chroms are factors
 new2_ab$chrom = factor(new2_ab$chrom)
+
+# assign a unique sample number to each sample
 new2_ab$sample = rep(seq(1,nrow(new2_ab) / gensize), each = gensize)
+
+# name pos and indiv columns correctly
 colnames(new2_ab)[1] = "pos"
 colnames(new2_ab)[2] = "indiv"
+
+# generate and apply sample biases
 biases = 0.5 + rnorm(n=length(levels(factor(new2_ab$sample))), sd=0.1)
 new2_ab$bias = sapply(new2_ab$sample, function(x){biases[x]})
+
+# generate coverage counts at each locus, with bias based on sample
 new2_ab$count = rpois(nrow(new2_ab), (rep(avgcov, nrow(new2_ab)) + new2_ab$bias))
+
+# generate allele counts based on binomial draws from coverage
 new2_ab$hits = rbinom(nrow(new2_ab), new2_ab$count, new2_ab$bias)
+
+# make sure 1 region of the genome is selected, and give it a bias toward 1 allele
+# this region of the genome should be found in only 1 chromosome of 1 individual
 selectedstart = (gensize-treatsize) + 1
 selectedend = gensize
 selectedrange = selectedstart:selectedend
