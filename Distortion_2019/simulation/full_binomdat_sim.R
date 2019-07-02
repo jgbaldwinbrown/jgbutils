@@ -30,8 +30,6 @@ parser$add_argument("-a", "--average_coverage", type="double", default=1.75,
     help="Average genome coverage (default=1.75).")
 parser$add_argument("-O", "--simulation_data_out", default="out_sim.txt", 
     help="Path to simulation data output file (default=out_sim.txt).")
-parser$add_argument("-o", "--txt_out", default="out.txt", 
-    help="Path to text output file (default=out.txt).")
 parser$add_argument("-p", "--pdf_out", default="out.pdf", 
     help="Path to pdf output file (default=out.pdf).")
 parser$add_argument("-m", "--pdf_title", default="2Mb sliding window ANOVA (simulated)", 
@@ -48,7 +46,6 @@ winsize = args$winsize
 winstep = args$winstep
 bps_per_hetsnp = args$bps_per_hetsnp
 distortion_frac = args$distortion_frac
-txt_out = args$txt_out
 txt_sim_out = args$simulation_data_out
 pdf_out = args$pdf_out
 pdf_title = args$pdf_title
@@ -56,105 +53,6 @@ reps = args$reps
 sperm_reps = args$sperm_reps
 nchroms = args$chroms
 avgcov = args$average_coverage
-
-structured <- function(x){
-    #print(paste("structured starting:", Sys.time()))
-    ax <- x[,1]
-    a <- data.frame(pos=as.character(1:length(ax)),treat=rep("a",length(ax)),variable=rep("X0",length(ax)),value=ax)
-    bx <- x[,2:ncol(x)]
-    bd <- data.frame(pos=as.character(1:nrow(bx)),bx,treat=rep("b",nrow(bx)))
-    bdm <- melt(bd,id.vars = c("pos","treat"))
-    ab <- as.data.frame(rbind(a,bdm))
-    ab$pos = as.numeric(ab$pos)
-    ab$treat = as.numeric(ab$treat)
-    ab$variable = as.numeric(ab$variable)
-    #print(head(a))
-    #print(head(bd))
-    #print(head(bdm))
-    #print(head(ab))
-    #print(str(ab))
-    #print(paste("structured done:", Sys.time()))
-    return(ab)
-}
-
-my_treat_anova <- function(ab){
-    #print(paste("anova starting:", Sys.time()))
-    out = aov(data=ab,formula=value~treat+variable+pos)
-    #print(paste("anova done:", Sys.time()))
-    return(out)
-}
-my_pval_treat <- function(my_aov){
-    #print(paste("pval starting:", Sys.time()))
-    #print(summary(my_aov))
-    #str(summary(my_aov))
-    out = summary(my_aov)[[1]]["Pr(>F)"][1]
-    #print(paste("pval done:", Sys.time()))
-    return(out)
-}
-my_structured_treat_anova_pval <- function(x){
-    #print(paste("structured_treat_anova_pval starting:", Sys.time()))
-    out = my_pval_treat(my_treat_anova(structured(x)))
-    #print(paste("structured_treat_anova_pval done:", Sys.time()))
-    return(out)
-}
-multitest_treat_anova <- function(x,excols,concols){
-    #print(paste("multitest starting:", Sys.time()))
-    out=rep(NA,length(excols))
-    for (i in excols) {
-        #print(paste("multitest loop starting:", Sys.time()))
-        out[i] <- my_structured_treat_anova_pval(x[,c(excols[i],concols)])
-        #print(paste("multitest loop done:", Sys.time()))
-    }
-    #print(paste("multitest done:", Sys.time()))
-    return(out)
-}
-roll_multitest_treat <- function(x,excols,concols,size,step){
-    my_half <- round((size-1) / 2)
-    my_starts <- seq(1,nrow(x)-(size-1),by=step)
-    my_ends <- my_starts+(size-1)
-    my_mids <- my_starts + my_half
-    tempout <- as.data.frame(matrix(ncol=length(excols),nrow=length(my_starts)))
-    for (i in 1:nrow(tempout)){
-        tempout[i,] <- multitest_treat_anova(x[my_starts[i]:my_ends[i],],excols,concols)
-    }
-    out <- as.data.frame(cbind(my_starts,my_ends,my_mids,tempout))
-    #print(paste("roll_multi done:", Sys.time()))
-    return(out)
-}
-
-
-my_structured_2random_anova <- function(x){
-    return(my_2random_anova(structured(x)))
-}
-my_2random_anova <- function(ab){
-    return(aov(data=ab,formula=value~treat+Error(pos+variable)))
-}
-my_pval <- function(my_aov){
-    return(summary(my_aov)[[2]][[1]]["Pr(>F)"][[1]][1])
-}
-my_structured_2random_anova_pval <- function(x){
-    return(my_pval(my_structured_2random_anova(x)))
-}
-multitest_2random_anova <- function(x,excols,concols){
-    out=rep(NA,length(excols))
-    for (i in excols) {
-        out[i] <- my_structured_2random_anova_pval(x[,c(excols[i],concols)])
-    }
-    return(out)
-}
-roll_multitest <- function(x,excols,concols,size,step){
-    my_half <- round((size-1) / 2)
-    my_starts <- seq(1,nrow(x)-(size-1),by=step)
-    my_ends <- my_starts+(size-1)
-    my_mids <- my_starts + my_half
-    tempout <- as.data.frame(matrix(ncol=length(excols),nrow=length(my_starts)))
-    for (i in 1:nrow(tempout)){
-        tempout[i,] <- multitest_2random_anova(x[my_starts[i]:my_ends[i],],excols,concols)
-    }
-    out <- as.data.frame(cbind(my_starts,my_ends,my_mids,tempout))
-    return(out)
-}
-
 
 set.seed(seed = rseed)
 
@@ -192,8 +90,6 @@ selectedstart = (gensize-treatsize) + 1
 selectedend = gensize
 selectedrange = selectedstart:selectedend
 new2_ab$hits[selectedrange] = rbinom((selectedend - selectedstart) + 1, new2_ab$count[selectedrange], new2_ab$bias[selectedrange] + distortion_frac)
-#a1 <- t(sapply(means[1:(gensize - treatsize)],function(x){rnorm(1,mean=x)}))
-#a2 <- t(sapply(means[((gensize - treatsize)+1):gensize],function(x){rnorm(1,mean=x+distortion_frac)}))
 
 write.table(new2_ab, txt_sim_out)
 
