@@ -26,15 +26,10 @@ pdf_title2 = args$pdf_title2
 
 # read all data into the program
 data <- read.table(input)
-#head(data)
-#str(data)
 
 # Run the GLM on the data. This GLM estimates hits and counts based on position, gc (continuous), indiv, and tissue
 l = glm(data, formula = cbind(hits, count) ~ pos + gc*indiv*tissue, family="binomial")
 p = predict(l, data) # get a prediction of the value of each real data point based on the model
-#print(summary(l))
-#print(l$sigma)
-#str(p)
 
 # Add calculated values (p) to the initial data
 data$predict = p # values predicted from model
@@ -43,14 +38,12 @@ data$z = scale(data$diff) # same as diff, but subtract mean and divide by sd
 data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)}) # p value assuming z is normally distributed
 data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_") # aggregate variable that combines individual, chromosome, and tissue -- this combination uniquely describes all GC biases
 
-#head(data)
 write.table(data, txt_out)
 
 # get per-chromosome means of the differences
 datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
 colnames(datameans) = c("indiv", "chrom", "tissue", "x")
 datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
-#head(datameans)
 
 # Do a t-test comparing the differences in blood vs. sperm.
 # The t-test compares each sample to the collection of all blood samples.
@@ -60,8 +53,6 @@ a = sapply(datameans$indiv_chrom_tissue,
         t.test(data$diff[data$indiv_chrom_tissue == temp],
             data$diff[data$tissue=="blood"])$p.value }
 )
-#str(a)
-#str(datameans)
 datameans$p = a # save the p-values of the t-tests in datameans.
 
 # output
