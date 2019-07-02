@@ -22,11 +22,7 @@ chrom_sliding_window = function(indiv_chrom_tissue, indiv, chrom, tissue, contro
     rows_to_keep = rows_to_keep1 | rows_to_keep2
     rolldata = data[rows_to_keep,]
     rolldataw = dcast(data = rolldata, formula = pos + chrom ~ tissue + indiv, value.var = "z")
-    #str(rolldataw)
-    #write.table(rolldataw, "temp.txt")
-    #quit()
     rollout = rollapply(data=rolldataw[,3:ncol(rolldataw)], width = win_size, by = win_step, by.column = FALSE, FUN = t_test_cols)
-    #str(rollout)
     return(rollout)
 }
 
@@ -39,12 +35,7 @@ meltrolldat = function(rolldat){
     indiv = sapply(outsplit, function(x){unlist(x)[1]})
     chrom = sapply(outsplit, function(x){unlist(x)[2]})
     tissue = sapply(outsplit, function(x){unlist(x)[3]})
-    str(indiv)
-    str(chrom)
-    str(tissue)
-    str(outdat)
     out = as.data.frame(cbind(indiv, chrom, tissue, outdat))
-    str(out)
     return(out)
 }
 
@@ -118,33 +109,17 @@ rolldat = as.data.frame(
 )
 
 rolldatm = meltrolldat(rolldat)
-#datameans$p = a # save the p-values of the t-tests in datameans.
 
-#a = unlist(a)
-#str(a)
 # output
-print(1) #debug
 write.table(rolldat, txt_out2)
-print(2) #debug
 write.table(rolldatm, txt_out3)
-print(3) #debug
 
-print(4) #debug
 # make a linear plot of the mean amount of difference per chromosome
-print(5) #debug
 pdf(pdf_out,height=10,width=3)
-print(6) #debug
 ggplot(data=rolldatm, aes(window, value, fill=factor(tissue))) + geom_bar(stat="identity", position="dodge") + facet_grid(indiv~chrom) + ggtitle(pdf_title)
-print(7) #debug
 dev.off()
-print(8) #debug
 
-print(9) #debug
 # plot the p-value of the t-test on a -log10 scale
-print(10) #debug
 pdf(pdf_out2,height=10,width=3)
-print(11) #debug
 ggplot(data=rolldatm, aes(window, -log10(value), fill = factor(tissue))) + geom_bar(stat="identity", position="dodge") + facet_grid(indiv~chrom) + ggtitle(pdf_title2)
-print(12) #debug
 dev.off()
-print(13) #debug
