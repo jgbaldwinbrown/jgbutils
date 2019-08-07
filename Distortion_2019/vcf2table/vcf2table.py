@@ -44,10 +44,15 @@ def read_vcf(vcfin, control, test, control_name, test_name, gc):
     vcf_data = []
     for i, record in enumerate(vcfin):
         if i == 0:
-            for j in range(record.num_called):
+            for j in range(len(record.samples)):
+            #for j in range(record.num_called):
                 vcf_data.append([])
         
-        unif_info = [record.CHROM, record.POS, record.ID, gc[record.CHROM], record.REF, record.ALT[0]]
+        try:
+            gc_frac = gc[record.CHROM]
+        except KeyError:
+            gc_frac = 'NA'
+        unif_info = [record.CHROM, record.POS, gc_frac, record.REF, record.ALT[0]]
         control_info = [x for x in unif_info]
         control_info.append(control_name)
         test_info = [x for x in unif_info]
@@ -60,10 +65,14 @@ def read_vcf(vcfin, control, test, control_name, test_name, gc):
                 call_info = [x for x in test_info]
             else:
                 sys.exit("neither test nor control!")
+            call_info.append(call.sample)
             call_info.append(call.data.GT)
-            call_info.append(int(call.data.AD[0]))
-            call_info.append(int(call.data.AD[1]))
-            call_info.append(int(call.data.AD[0]) + int(call.data.AD[1]))
+            if call.data.AD is None:
+                call_info.extend([0, 0, 0])
+            else:
+                call_info.append(int(call.data.AD[0]))
+                call_info.append(int(call.data.AD[1]))
+                call_info.append(int(call.data.AD[0]) + int(call.data.AD[1]))
             vcf_data[j].append(call_info)
         
         ##a[0].samples[1].data.AD
