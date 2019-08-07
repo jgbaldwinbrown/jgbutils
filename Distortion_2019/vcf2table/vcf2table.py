@@ -10,11 +10,8 @@ import copy
 def parse_my_args():
     parser = argparse.ArgumentParser("Compute the Cochran-Mantel-Haenszel test on a VCF file")
     parser.add_argument("vcf", nargs="?", help="Input VCF file; default stdin")
-    parser.add_argument("-c", "--control",  help="comma separated, 0-indexed VCF columns to use as controls; required.", required=True)
+    parser.add_argument("-t", "--tissue", help="Name of a tab-separated file specifying the sample ID in column 1 and the tissue type in column 2", required=True)
     parser.add_argument("-g", "--gc",  help="Per-chromosome tab-separated GC bias table. First column chromosome name, second fraction GC.", required=True)
-    parser.add_argument("-t", "--test",  help="comma separated, 0-indexed VCF columns to use as test data; required.", required=True)
-    parser.add_argument("-N", "--control_name",  help="Name to assign to control samples. Default=\"Blood\".", required=False)
-    parser.add_argument("-n", "--test_name",  help="Name to assign to test samples. Default=\"Sperm\".", required=False)
 
     args = parser.parse_args()
     return(args)
@@ -24,23 +21,21 @@ def get_arg_vars(args):
         inconn = open(args.vcf, "r")
     else:
         inconn = sys.stdin
-
-    control = set([int(x) for x in args.control.split(",")])
-    test = set([int(x) for x in args.test.split(",")])
-    control_name = "Blood"
-    test_name = "Sperm"
-    if args.control_name:
-        control_name = args.control_name
-    if args.test_name:
-        test_name = args.test_name
+    
+    tissues = {}
+    for l in open(args.tissue, "r"):
+        sl = l.rstrip('\n').split('\t')
+        sample, tissue = (sl[0], sl[1])
+        tissues[sample] = tissue
+    
     gc = {}
     for l in open(args.gc, "r"):
         sl = l.rstrip('\n').split('\t')
         name, value = (sl[0], float(sl[1]))
         gc[name] = value
-    return((inconn, control, test, control_name, test_name, gc))
+    return((inconn, tissues, gc))
 
-def read_vcf(vcfin, control, test, control_name, test_name, gc):
+def read_vcf(vcfin, tissues, gc):
     vcf_data = []
     for i, record in enumerate(vcfin):
         if i == 0:
@@ -53,18 +48,13 @@ def read_vcf(vcfin, control, test, control_name, test_name, gc):
         except KeyError:
             gc_frac = 'NA'
         unif_info = [record.CHROM, record.POS, gc_frac, record.REF, record.ALT[0]]
-        control_info = [x for x in unif_info]
-        control_info.append(control_name)
-        test_info = [x for x in unif_info]
-        test_info.append(test_name)
         
         for j, call in enumerate(record.samples):
-            if j in control:
-                call_info = [x for x in control_info]
-            elif j in test:
-                call_info = [x for x in test_info]
-            else:
-                sys.exit("neither test nor control!")
+            call_info = unif_info.copy()
+            try:
+                call_info.append(tissues[call.sample])
+            except KeyError:
+                call_info.append("NA")
             call_info.append(call.sample)
             call_info.append(call.data.GT)
             if call.data.AD is None:
@@ -94,10 +84,10 @@ def write_vcf2table(vcf_data):
 def main():
     args = parse_my_args()
 
-    inconn, control, test, control_name, test_name, gc = get_arg_vars(args)
+    inconn, tissues, gc = get_arg_vars(args)
 
     vcfin = vcf.Reader(inconn)
-    vcf_data = read_vcf(vcfin, control, test, control_name, test_name, gc)
+    vcf_data = read_vcf(vcfin, tissues, gc)
     write_vcf2table(vcf_data)
 
     inconn.close()
