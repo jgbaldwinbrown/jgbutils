@@ -11,9 +11,10 @@ def parse_my_args():
     parser = argparse.ArgumentParser("Compute the Cochran-Mantel-Haenszel test on a VCF file")
     parser.add_argument("vcf", nargs="?", help="Input VCF file; default stdin")
     parser.add_argument("-c", "--control",  help="comma separated, 0-indexed VCF columns to use as controls; required.", required=True)
+    parser.add_argument("-g", "--gc",  help="Per-chromosome tab-separated GC bias table. First column chromosome name, second fraction GC.", required=True)
     parser.add_argument("-t", "--test",  help="comma separated, 0-indexed VCF columns to use as test data; required.", required=True)
-    parser.add_argument("-N", "--control_name",  help="Name to assign to control samples. Default=\"Blood\".", required=True)
-    parser.add_argument("-n", "--test_name",  help="Name to assign to test samples. Default=\"Sperm\".", required=True)
+    parser.add_argument("-N", "--control_name",  help="Name to assign to control samples. Default=\"Blood\".", required=False)
+    parser.add_argument("-n", "--test_name",  help="Name to assign to test samples. Default=\"Sperm\".", required=False)
 
     args = parser.parse_args()
     return(args)
@@ -24,47 +25,71 @@ def get_arg_vars(args):
     else:
         inconn = sys.stdin
 
-    control = [int(x) for x in args.control.split(",")]
-    test = [int(x) for x in args.test.split(",")]
+    control = set([int(x) for x in args.control.split(",")])
+    test = set([int(x) for x in args.test.split(",")])
     control_name = "Blood"
     test_name = "Sperm"
     if args.control_name:
         control_name = args.control_name
     if args.test_name:
         test_name = args.test_name
-    return((inconn, control, test, control_name, test_name))
+    gc = {}
+    for l in open(args.gc, "r"):
+        sl = l.rstrip('\n').split('\t')
+        name, value = (sl[0], float(sl[1]))
+        gc[name] = value
+    return((inconn, control, test, control_name, test_name, gc))
 
-def read_vcf(vcfin, control, test, control_name, test_name):
+def read_vcf(vcfin, control, test, control_name, test_name, gc):
     vcf_data = []
     for i, record in enumerate(vcfin):
         if i == 0:
-            for j in record.num_called:
+            for j in range(record.num_called):
                 vcf_data.append([])
         
-        unif_info = [record.CHROM, record.POS, record.ID, ]
+        unif_info = [record.CHROM, record.POS, record.ID, gc[record.CHROM], record.REF, record.ALT[0]]
+        control_info = [x for x in unif_info]
+        control_info.append(control_name)
+        test_info = [x for x in unif_info]
+        test_info.append(test_name)
         
-        #a[0].samples[1].data.AD
-        calls = [call for call in record]
-        for i in range(len(control)):
-            tester[i,0,0] = calls[control[i]].data.AD[0]
-            tester[i,0,1] = calls[control[i]].data.AD[1]
-            tester[i,1,0] = calls[test[i]].data.AD[0]
-            tester[i,1,1] = calls[test[i]].data.AD[1]
-        cmh = sm.stats.StratifiedTable(tester)
-        writeout(cmh, record, outwriter)
+        for j, call in enumerate(record.samples):
+            if j in control:
+                call_info = [x for x in control_info]
+            elif j in test:
+                call_info = [x for x in test_info]
+            else:
+                sys.exit("neither test nor control!")
+            call_info.append(call.data.GT)
+            call_info.append(int(call.data.AD[0]))
+            call_info.append(int(call.data.AD[1]))
+            call_info.append(int(call.data.AD[0]) + int(call.data.AD[1]))
+            vcf_data[j].append(call_info)
+        
+        ##a[0].samples[1].data.AD
+        #calls = [call for call in record]
+        #for i in range(len(control)):
+        #    tester[i,0,0] = calls[control[i]].data.AD[0]
+        #    tester[i,0,1] = calls[control[i]].data.AD[1]
+        #    tester[i,1,0] = calls[test[i]].data.AD[0]
+        #    tester[i,1,1] = calls[test[i]].data.AD[1]
+        #cmh = sm.stats.StratifiedTable(tester)
+        #writeout(cmh, record, outwriter)
+    return(vcf_data)
 
 def write_vcf2table(vcf_data):
-    for i in vcfdata:
-        print("\t".join(map(str, i)))
+    for indiv in vcf_data:
+        for position in indiv:
+            print("\t".join(map(str, position)))
 
 def main():
     args = parse_my_args()
 
-    inconn, control, test, control_name, test_name = get_arg_vars(args)
+    inconn, control, test, control_name, test_name, gc = get_arg_vars(args)
 
     vcfin = vcf.Reader(inconn)
-    vcf_data = read_vcf(vcfin, control, test, outwriter)
-    write_vcftable(vcf_data)
+    vcf_data = read_vcf(vcfin, control, test, control_name, test_name, gc)
+    write_vcf2table(vcf_data)
 
     inconn.close()
 
