@@ -104,8 +104,12 @@ colnames(new2_ab)[2] = "indiv"
 biases = 0.5 + rnorm(n=length(levels(factor(new2_ab$sample))), sd=0.1)
 new2_ab$bias = sapply(new2_ab$sample, function(x){biases[x]})
 
+# generate and apply sample-specific, gc-specific bias
+new2_ab$sample_gc = 0.5 + rnorm(n=length(levels(factor(new2_ab$sample))), sd=0.1)
+new2_ab$sample_gc_bias = new2_ab$sample_gc * new2_ab$gc
+
 # generate coverage counts at each locus, with bias based on sample
-new2_ab$count = rpois(nrow(new2_ab), (rep(avgcov, nrow(new2_ab)) + new2_ab$bias))
+new2_ab$count = rpois(nrow(new2_ab), (rep(avgcov, nrow(new2_ab)) + new2_ab$bias + new2_ab$sample_gc_bias))
 
 # generate allele counts based on binomial draws from coverage
 new2_ab$hits = rbinom(nrow(new2_ab), new2_ab$count, new2_ab$bias)
