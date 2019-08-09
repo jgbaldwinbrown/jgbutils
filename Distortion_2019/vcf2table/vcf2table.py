@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import tempfile
 import vcf
 import numpy as np
 import statsmodels.api as sm
@@ -36,12 +37,12 @@ def get_arg_vars(args):
     return((inconn, tissues, gc))
 
 def read_vcf(vcfin, tissues, gc):
-    vcf_data = []
+    tempfiles = []
     for i, record in enumerate(vcfin):
         if i == 0:
             for j in range(len(record.samples)):
             #for j in range(record.num_called):
-                vcf_data.append([])
+                tempfiles.append(tempfile.TemporaryFile(mode='w+'))
         
         try:
             gc_frac = gc[record.CHROM]
@@ -63,23 +64,16 @@ def read_vcf(vcfin, tissues, gc):
                 call_info.append(int(call.data.AD[0]))
                 call_info.append(int(call.data.AD[1]))
                 call_info.append(int(call.data.AD[0]) + int(call.data.AD[1]))
-            vcf_data[j].append(call_info)
-        
-        ##a[0].samples[1].data.AD
-        #calls = [call for call in record]
-        #for i in range(len(control)):
-        #    tester[i,0,0] = calls[control[i]].data.AD[0]
-        #    tester[i,0,1] = calls[control[i]].data.AD[1]
-        #    tester[i,1,0] = calls[test[i]].data.AD[0]
-        #    tester[i,1,1] = calls[test[i]].data.AD[1]
-        #cmh = sm.stats.StratifiedTable(tester)
-        #writeout(cmh, record, outwriter)
-    return(vcf_data)
+            tempfiles[j].write("\t".join(map(str,call_info)) + "\n")
+    for indiv in tempfiles:
+        indiv.seek(0)
+    return(tempfiles)
 
-def write_vcf2table(vcf_data):
-    for indiv in vcf_data:
+def write_vcf2table(tempfiles):
+    for indiv in tempfiles:
         for position in indiv:
-            print("\t".join(map(str, position)))
+            print(position.rstrip('\n'))
+        indiv.close()
 
 def main():
     args = parse_my_args()
@@ -87,20 +81,13 @@ def main():
     inconn, tissues, gc = get_arg_vars(args)
 
     vcfin = vcf.Reader(inconn)
-    vcf_data = read_vcf(vcfin, tissues, gc)
-    write_vcf2table(vcf_data)
+    tempfiles = read_vcf(vcfin, tissues, gc)
+    write_vcf2table(tempfiles)
 
     inconn.close()
 
 if __name__ == "__main__":
     main()
-
-
-
-#>>> for i in b:
-#...     for j in i:
-#...         try:print(j.data.AD)
-
 
 #"pos" "indiv" "value" "tissue" "chrom" "gc" "sample" "bias" "count" "hits"
 #"1" 1 1 1.26295428488079 "sperm" "1" 0.444345820403328 1 0.549235502170337 2 2
@@ -113,27 +100,6 @@ if __name__ == "__main__":
 #"8" 8 1 -0.29472044679056 "sperm" "1" 0.444345820403328 1 0.549235502170337 2 1
 #"9" 9 1 -0.00576717274753696 "sperm" "1" 0.444345820403328 1 0.549235502170337 3 2
 
-###fileformat=VCFv4.0
-###fileDate=20090805
-###source=myImputationProgramV3.1
-###reference=1000GenomesPilot-NCBI36
-###phasing=partial
-###INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
-###INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
-###INFO=<ID=AC,Number=.,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
-###INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
-###INFO=<ID=AF,Number=.,Type=Float,Description="Allele Frequency">
-###INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">
-###INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
-###INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
-###FILTER=<ID=q10,Description="Quality below 10">
-###FILTER=<ID=s50,Description="Less than 50% of samples have data">
-###FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-###FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
-###FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
-###FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">
-###ALT=<ID=DEL:ME:ALU,Description="Deletion of ALU element">
-###ALT=<ID=CNV,Description="Copy number variable region">
 ##CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NA00001	NA00002	NA00003	NA00004
 #X	101	rsTest	A	C	10	PASS	.	GT:AD	0:100,5	0/1:50,45	0|1:10,108	0|1:55,45
 #X	101	rsTest	A	C	10	PASS	.	GT:AD	0:108,5	0/1:50,45	0|1:10,108	0|1:55,45
