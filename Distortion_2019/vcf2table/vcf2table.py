@@ -70,6 +70,7 @@ def read_vcf(vcfin, tissues, gc):
     return(tempfiles)
 
 def write_vcf2table(tempfiles):
+    print("chrom\tpos\tgc\tref\talt\ttissue\tsample\tgt\thits\talthits\tcount")
     for indiv in tempfiles:
         for position in indiv:
             print(position.rstrip('\n'))
@@ -104,3 +105,5 @@ if __name__ == "__main__":
 #X	101	rsTest	A	C	10	PASS	.	GT:AD	0:100,5	0/1:50,45	0|1:10,108	0|1:55,45
 #X	101	rsTest	A	C	10	PASS	.	GT:AD	0:108,5	0/1:50,45	0|1:10,108	0|1:55,45
 #X	101	rsTest	A	C	10	PASS	.	GT:AD	0:80,5	0/1:50,45	0|1:10,108	0|1:55,45
+
+#chrom	pos	gc	ref	alt	tissue	sample	gt	hits	althits	count
