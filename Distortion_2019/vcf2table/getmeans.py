@@ -8,15 +8,54 @@ import math
 
 class Cpos_data(object):
     def __init__(self):
-        self.freqs = []
-        self.counts = []
         self.freqs_mean = None
         self.freqs_sd = None
         self.counts_mean = None
         self.counts_sd = None
+        self.freqsum = 0
+        self.freqsum_sq = 0
+        self.freqn = 0
+        self.countsum = 0
+        self.countsum_sq = 0
+        self.countn = 0
     def printme(self):
         print(self.freqs, self.counts, self.freqs_mean, self.freqs_sd, self.counts_mean, self.counts_sd, sep="\n")
         print("<======>")
+    def update_freqs(self, freq):
+        if not math.isnan(freq):
+            self.freqsum += freq
+            self.freqsum_sq += (freq * freq)
+            self.freqn += 1
+    def update_counts(self, count):
+        if not math.isnan(count):
+            self.countsum += count
+            self.countsum_sq += (count * count)
+            self.countn += 1
+    def mean_sd(self):
+        self.freqs_mean = meanit(self.freqsum, self.freqn)
+        self.freqs_sd = sdit(self.freqsum, self.freqsum_sq, self.freqn)
+        self.counts_mean = meanit(self.countsum, self.countn)
+        self.counts_sd = sdit(self.countsum, self.countsum_sq, self.countn)
+        
+
+def meanit(asum, n):
+    out = "NA"
+    if n>=1:
+        out = asum / n
+    return(out)
+
+def sdit(asum, asum_sq, n):
+    out = "NA"
+    if n>= 2:
+        print(asum, asum_sq, n)
+        #print((asum_sq/n) - ((asum * asum)/n/(n-1)))
+        print(((n * asum_sq) - asum) / (n * (n-1)) )
+        out = math.sqrt( ((n * asum_sq) - asum) / (n * (n-1)) )
+        #out = math.sqrt( (asum_sq/n) - ( (asum * asum) /(n*(n)) ))
+        #out = math.sqrt( (asum_sq/n) - ( (asum * asum) /(n*(n-1)) ))
+        #out = math.sqrt((asum_sq/n) - ((asum * asum)/n/(n-1)))
+    return(out)
+        
 
 
 def read_table():
@@ -36,31 +75,15 @@ def read_table():
             freq = float('nan')
         if not cpos in data:
             data[cpos] = Cpos_data()
-        data[cpos].freqs.append(freq)
-        data[cpos].counts.append(count)
+        data[cpos].update_freqs(freq)
+        data[cpos].update_counts(count)
         atemp.write(l)
     return(data, atemp)
 
 def calculate_means(data):
     for cpos, cpos_data in data.items():
-        freqs_nonan = [x for x in cpos_data.freqs if not math.isnan(x)]
-        counts_nonan = [x for x in cpos_data.counts if not math.isnan(x)]
-        try:
-            cpos_data.freqs_mean = statistics.mean(freqs_nonan)
-        except statistics.StatisticsError:
-            cpos_data.freqs_mean = 'NA'
-        try:
-            cpos_data.freqs_sd = statistics.stdev(freqs_nonan)
-        except statistics.StatisticsError:
-            cpos_data.freqs_sd = 'NA'
-        try:
-            cpos_data.counts_mean = statistics.mean(counts_nonan)
-        except statistics.StatisticsError:
-            cpos_data.counts_mean = 'NA'
-        try:
-            cpos_data.counts_sd = statistics.stdev(counts_nonan)
-        except statistics.StatisticsError:
-            cpos_data.counts_sd = 'NA'
+        print(cpos)
+        cpos_data.mean_sd()
 
 def write_data(data, atemp):
     atemp.seek(0)
