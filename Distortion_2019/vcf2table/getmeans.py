@@ -19,7 +19,7 @@ class Cpos_data(object):
         self.countsum_sq = 0
         self.countn = 0
     def printme(self):
-        print(self.freqs, self.counts, self.freqs_mean, self.freqs_sd, self.counts_mean, self.counts_sd, sep="\n")
+        print(self.freqsum, self.freqsum_sq, self.freqn, self.countsum, self.countsum_sq, self.countn, self.freqs_mean, self.freqs_sd, self.counts_mean, self.counts_sd, sep="\n")
         print("<======>")
     def update_freqs(self, freq):
         if not math.isnan(freq):
@@ -47,13 +47,7 @@ def meanit(asum, n):
 def sdit(asum, asum_sq, n):
     out = "NA"
     if n>= 2:
-        print(asum, asum_sq, n)
-        #print((asum_sq/n) - ((asum * asum)/n/(n-1)))
-        print(((n * asum_sq) - asum) / (n * (n-1)) )
-        out = math.sqrt( ((n * asum_sq) - asum) / (n * (n-1)) )
-        #out = math.sqrt( (asum_sq/n) - ( (asum * asum) /(n*(n)) ))
-        #out = math.sqrt( (asum_sq/n) - ( (asum * asum) /(n*(n-1)) ))
-        #out = math.sqrt((asum_sq/n) - ((asum * asum)/n/(n-1)))
+        out = math.sqrt( ((n * asum_sq) - (asum * asum)) / (n * (n-1)) )
     return(out)
         
 
@@ -82,7 +76,6 @@ def read_table():
 
 def calculate_means(data):
     for cpos, cpos_data in data.items():
-        print(cpos)
         cpos_data.mean_sd()
 
 def write_data(data, atemp):
