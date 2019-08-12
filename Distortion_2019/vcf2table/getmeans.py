@@ -3,6 +3,8 @@
 import sys
 import tempfile
 import statistics
+#import numpy as np
+import math
 
 class Cpos_data(object):
     def __init__(self):
@@ -12,6 +14,9 @@ class Cpos_data(object):
         self.freqs_sd = None
         self.counts_mean = None
         self.counts_sd = None
+    def printme(self):
+        print(self.freqs, self.counts, self.freqs_mean, self.freqs_sd, self.counts_mean, self.counts_sd, sep="\n")
+        print("<======>")
 
 
 def read_table():
@@ -38,10 +43,24 @@ def read_table():
 
 def calculate_means(data):
     for cpos, cpos_data in data.items():
-        cpos_data.freqs_mean = statistics.mean(cpos_data.freqs)
-        cpos_data.freqs_sd = statistics.stdev(cpos_data.freqs)
-        cpos_data.counts_mean = statistics.mean(cpos_data.counts)
-        cpos_data.counts_sd = statistics.stdev(cpos_data.counts)
+        freqs_nonan = [x for x in cpos_data.freqs if not math.isnan(x)]
+        counts_nonan = [x for x in cpos_data.counts if not math.isnan(x)]
+        try:
+            cpos_data.freqs_mean = statistics.mean(freqs_nonan)
+        except statistics.StatisticsError:
+            cpos_data.freqs_mean = 'NA'
+        try:
+            cpos_data.freqs_sd = statistics.stdev(freqs_nonan)
+        except statistics.StatisticsError:
+            cpos_data.freqs_sd = 'NA'
+        try:
+            cpos_data.counts_mean = statistics.mean(counts_nonan)
+        except statistics.StatisticsError:
+            cpos_data.counts_mean = 'NA'
+        try:
+            cpos_data.counts_sd = statistics.stdev(counts_nonan)
+        except statistics.StatisticsError:
+            cpos_data.counts_sd = 'NA'
 
 def write_data(data, atemp):
     atemp.seek(0)
