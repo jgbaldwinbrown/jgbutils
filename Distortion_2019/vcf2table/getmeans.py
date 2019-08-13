@@ -32,22 +32,22 @@ class Cpos_data(object):
         print(self.freqsum, self.freqsum_sq, self.freqn, self.countsum, self.countsum_sq, self.countn, self.freqs_mean, self.freqs_sd, self.counts_mean, self.counts_sd, sep="\n")
         print("<======>")
     def update_freqs(self, freq):
-        if not math.isnan(freq):
+        if not freq == "NA":
             self.freqsum += freq
             self.freqsum_sq += (freq * freq)
             self.freqn += 1
     def update_freqs_het(self, freq):
-        if not math.isnan(freq):
+        if not freq == "NA":
             self.freqsum_het += freq
             self.freqsum_sq_het += (freq * freq)
             self.freqn_het += 1
     def update_counts(self, count):
-        if not math.isnan(count):
+        if not count == "NA":
             self.countsum += count
             self.countsum_sq += (count * count)
             self.countn += 1
     def update_counts_het(self, count):
-        if not math.isnan(count):
+        if not count == "NA":
             self.countsum_het += count
             self.countsum_sq_het += (count * count)
             self.countn_het += 1
@@ -73,12 +73,21 @@ def sdit(asum, asum_sq, n):
         out = math.sqrt( ((n * asum_sq) - (asum * asum)) / (n * (n-1)) )
     return(out)
 
+def normalize(x, mean, sd):
+    out = "NA"
+    try:
+        if sd > 0:
+            out = (x-mean) / sd
+    except TypeError:
+        pass
+    return(out)
+
 def read_table():
     data = {}
     atemp = tempfile.TemporaryFile(mode="w+")
     for i, l in enumerate(sys.stdin):
         if i==0:
-            print(l.rstrip('\n') + "\tfreq_mean\tfreq_sd\tcount_mean\tcount_sd\tfreq_mean_het\tfreq_sd_het\tcount_mean_het\tcount_sd_het")
+            print(l.rstrip('\n') + "\tfreq_mean\tfreq_sd\tcount_mean\tcount_sd\tfreq_mean_het\tfreq_sd_het\tcount_mean_het\tcount_sd_het\thet\tfreq\tfreq_nor\tfreq_nor_het\tcount_nor\tcount_nor_het")
             continue
         sl = l.rstrip('\n').split('\t')
         cpos = (sl[0], sl[1])
@@ -92,7 +101,7 @@ def read_table():
         if count > 0:
             freq = hits / count
         else:
-            freq = float('nan')
+            freq = "NA"
         if not cpos in data:
             data[cpos] = Cpos_data()
         data[cpos].update_freqs(freq)
@@ -113,6 +122,25 @@ def write_data(data, atemp):
         sl = l.rstrip('\n').split('\t')
         cpos = (sl[0], sl[1])
         cpos_data = data[cpos]
+        hits = float(sl[-3])
+        count = float(sl[-1])
+        gt = sl[-4]
+        het = False
+        if len(gt) >= 3:
+            if not gt[0] == gt[-1]:
+                het = True
+        if het:
+            hetp = "TRUE"
+        else:
+            hetp = "FALSE"
+        if count > 0:
+            freq = hits / count
+        else:
+            freq = "NA"
+        freq_nor = normalize(freq, cpos_data.freqs_mean, cpos_data.freqs_sd)
+        freq_nor_het = normalize(freq, cpos_data.freqs_mean_het, cpos_data.freqs_sd_het)
+        count_nor = normalize(count, cpos_data.counts_mean, cpos_data.counts_sd)
+        count_nor_het = normalize(count, cpos_data.counts_mean_het, cpos_data.counts_sd_het)
         sl.append(cpos_data.freqs_mean)
         sl.append(cpos_data.freqs_sd)
         sl.append(cpos_data.counts_mean)
@@ -121,6 +149,12 @@ def write_data(data, atemp):
         sl.append(cpos_data.freqs_sd_het)
         sl.append(cpos_data.counts_mean_het)
         sl.append(cpos_data.counts_sd_het)
+        sl.append(hetp)
+        sl.append(freq)
+        sl.append(freq_nor)
+        sl.append(freq_nor_het)
+        sl.append(count_nor)
+        sl.append(count_nor_het)
         print("\t".join(map(str, sl)))
     atemp.close()
 
