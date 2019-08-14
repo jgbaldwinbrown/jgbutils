@@ -2,6 +2,8 @@
 
 library(ggplot2)
 library(argparse)
+library(data.table)
+library(reshape2)
 
 
 # create parser object
@@ -23,25 +25,17 @@ pdf_title = args$pdf_title
 pdf_out2 = args$pdf_out2
 pdf_title2 = args$pdf_title2
 
-data <- read.table(input)
+gzcom = paste("gunzip -c ", input, sep="")
+data <- as.data.frame(fread(gzcom, header=TRUE, stringsAsFactors=TRUE))
+str(data)
 data$freq = data$hits / data$count
 
 data$pos = factor(data$pos)
-data$indiv = factor(data$indiv)
+data$sample = factor(data$sample)
 data$sample = factor(data$sample)
 
-data_blood = data[data$tissue=="blood",]
-
-pos_stats = data.frame(pos=levels(factor(data_blood$pos)))
-pos_stats$freq_bloodmeans = sapply(levels(factor(data_blood$pos)), function(x){mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-pos_stats$freq_bloodsd = sapply(levels(factor(data_blood$pos)), function(x){sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-
-data$freq_bloodmean = apply(data, 1, function(x){pos_stats$freq_bloodmeans[pos_stats$pos==x["pos"]]})
-data$freq_bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$pos==x["pos"]]})
-
-data$freq_nor = (data$freq - data$freq_bloodmean) / data$freq_bloodsd
-
-l = lm(data, formula = freq_nor ~ sample + tissue)
+str(data)
+l = lm(data, formula = freq_nor_het_blood ~ sample + tissue)
 p = predict(l, data)
 
 data$p = p
@@ -50,20 +44,20 @@ data$z = scale(data$diff)
 temp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
 str(temp)
 data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
-data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
+data$sample_chrom_tissue = paste(data$sample, data$chrom, data$tissue, sep="_")
 
 head(data)
 write.table(data, txt_out)
 
-datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
-colnames(datameans) = c("indiv", "chrom", "tissue", "x")
-datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
+datameans = aggregate(data$diff, list(data$sample, data$chrom, data$tissue), mean)
+colnames(datameans) = c("sample", "chrom", "tissue", "x")
+datameans$sample_chrom_tissue = paste(datameans$sample, datameans$chrom, datameans$tissue, sep="_")
 head(datameans)
 
-a = sapply(datameans$indiv_chrom_tissue,
+a = sapply(datameans$sample_chrom_tissue,
     function(temp){
-        t.test(data$diff[data$indiv_chrom_tissue == temp],
-            data$diff[data$tissue=="blood"])$p.value
+        t.test(data$diff[data$sample_chrom_tissue == temp],
+            data$diff[data$tissue=="Blood"])$p.value
     }
 )
 datameans$p = a
@@ -71,9 +65,9 @@ datameans$p = a
 write.table(datameans, txt_out2)
 
 pdf(pdf_out,height=10,width=3)
-ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title)
+ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(sample~tissue) + ggtitle(pdf_title)
 dev.off()
 
 pdf(pdf_out2,height=10,width=3)
-ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2)
+ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(sample~tissue) + ggtitle(pdf_title2)
 dev.off()
