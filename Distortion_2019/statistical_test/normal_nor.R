@@ -56,8 +56,19 @@ head(datameans)
 
 a = sapply(datameans$sample_chrom_tissue,
     function(temp){
-        t.test(data$diff[data$sample_chrom_tissue == temp],
-            data$diff[data$tissue=="Blood"])$p.value
+        seta = data$sample_chrom_tissue == temp
+        setb = data$tissue == "Blood"
+        if (
+            sum(!is.na(seta)) >= 2 &
+            sum(!is.na(setb)) >= 2
+        ) {
+            return(
+                var.test(data$diff[seta],
+                    data$diff[setb])$p.value
+            )
+        } else {
+            return(NA)
+        }
     }
 )
 datameans$p = a
