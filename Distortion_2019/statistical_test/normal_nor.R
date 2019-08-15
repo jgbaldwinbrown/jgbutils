@@ -58,6 +58,8 @@ a = sapply(datameans$sample_chrom_tissue,
     function(temp){
         seta = data$sample_chrom_tissue == temp
         setb = data$tissue == "Blood"
+        groupa = data$diff[seta]
+        groupb = data$diff[setb]
         if (
             sum(!is.na(seta)) >= 2 &
             sum(!is.na(setb)) >= 2
