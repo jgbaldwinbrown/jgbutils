@@ -103,6 +103,7 @@ def main():
     args = parse_all_args()
     
     data = read_data(args)
+    print(data)
     args["inconn"].close()
 
     data_with_gcfrac = add_gcfrac(data, args)
