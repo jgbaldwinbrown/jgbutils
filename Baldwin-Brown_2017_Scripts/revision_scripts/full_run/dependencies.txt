@@ -1,0 +1,6 @@
+data/merged-realigned.bam
+data/only-PASS-Q30-SNPs-cov.txt
+data/poolsize.txt
+data/ref/shrimp_qmerged.quiver.fasta
+data/shrimp_4fold_degs_10-23-15.bed
+data/pop_order.txt
