@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-mkdir -p inter/bpout
+mkdir -p inter/bpout_deg
 
 baypass -npop 11 \
-    -gfile snpsfile_deg.txt \
+    -gfile inter/snpsfile_deg.txt \
     -nthreads 6 \
     -poolsizefile data/poolsize.txt \
-    -outprefix inter/bpout_deg/bpout
+    -outprefix inter/bpout_deg/bpout_deg
