@@ -3,11 +3,12 @@ set -e
 
 SWD=`pwd`
 
-gzip -c inter/snpsfile.txt > inter/snpsfile.txt.gz
-
-mkdir inter/treemix/out
+../treemix/baypass2treemix.py inter/snpsfile_12pop_censv3.txt data/pop_order.txt > inter/snpsfile_treemix_censv3.txt
+gzip $SWD/inter/snpsfile_treemix_censv3.txt > $SWD/inter/snpsfile_treemix_censv3.txt.gz
+mkdir -p inter/treemix/out
 cd inter/treemix/out
-treemix -i $SWD/inter/snpsfile.txt.gz -o out stem
-gunzip -c out.treeout.gz > out.treeout
+treemix -i $SWD/inter/snpsfile_treemix_censv3.txt.gz -o out_censv3 stem
+gunzip -c out_censv3.treeout.gz > out_censv3.treeout
 
-cp out.treeout $SWD/out/
+cp out_censv3.treeout $SWD/out/
+

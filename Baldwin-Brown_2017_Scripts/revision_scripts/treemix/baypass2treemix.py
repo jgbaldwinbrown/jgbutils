@@ -9,7 +9,7 @@ def main():
         inconn = open(sys.argv[1], "r")
     names = [x.rstrip('\n') for x in open(sys.argv[2], "r")]
 
-    print("\t".join(names))
+    print(" ".join(names))
     for i, l in enumerate(inconn):
         l=l.rstrip('\n')
         sl = l.split()

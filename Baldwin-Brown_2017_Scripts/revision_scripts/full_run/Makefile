@@ -2,7 +2,7 @@ all: out/fst.txt.done out/out.treeout.done out/npstat_out.txt.done inter/bpout_d
 
 temp: inter/bpout_deg/runbp_deg.done inter/bpout/runbp.done out/bcf_samtools.raw.bcf.done
 
-.PHONY: all
+.PHONY: all tree fst npstat
 
 .DELETE_ON_ERROR:
 
@@ -38,14 +38,17 @@ inter/merged-realigned.mpileup.gz.done: ../npstat/mpileup.sh data/merged-realign
 	bash $<
 	touch $@
 
+npstat: out/npstat_out.txt.done
 out/npstat_out.txt.done: ../npstat/run_npstat.sh inter/merged-realigned.mpileup.gz.done
 	bash $<
 	touch $@
 
+tree: out/out.treeout.done
 out/out.treeout.done: ../treemix/run_treemix.sh ../treemix/baypass2treemix.py ../treemix/run_baypass2treemix.sh inter/snpsfile.txt.done
 	bash $<
 	touch $@
 
+fst: out/fst.txt.done
 out/fst.txt.done: ../poolfst/run_pfs.sh ../poolfst/pfs.R inter/snpsfile.txt.done data/poolsize.txt
 	bash $<
 	touch $@
