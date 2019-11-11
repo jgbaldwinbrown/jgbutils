@@ -51,7 +51,7 @@ def write_chrompile(ifile, data):
 def run_npstat(chrom, data, args):
     basecom = ["npstat", "-n", args.sample_size]
     if args.prefix:
-        ipath = prefix + "_" + chrom + "_npstat.pileup"
+        ipath = args.prefix + "_" + chrom + "_npstat.pileup"
     else:
         ipath = "out" + "_" + chrom + "_npstat.pileup"
     ifile = open(ipath, "w")
@@ -85,23 +85,26 @@ def get_opaths(chroms, args):
     opaths = {}
     for chrom in chroms:
         if args.prefix:
-            opath = prefix + "_" + chrom + "_npstat.pileup.stats"
+            opath = args.prefix + "_" + chrom + "_npstat.pileup.stats"
         else:
             opath = "out" + "_" + chrom + "_npstat.pileup.stats"
         opaths[chrom] = opath
     return(opaths)
 
-def combine_and_write(opaths, args):
+def combine_and_write(ipaths, args):
     if args.prefix:
-        opath = prefix + ".stats"
+        opath = args.prefix + ".stats"
     else:
         opath = "out.stats"
     with open(opath, "w") as ofile:
-        for chrom, opath in opaths.items():
-            with open(opath, "r") as ifile:
+        first_header = True
+        for chrom, ipath in ipaths.items():
+            with open(ipath, "r") as ifile:
                 for i, l in enumerate(ifile):
                     if i == 0:
-                        ofile.write("chrom\t" + l)
+                        if first_header:
+                            ofile.write("chrom\t" + l)
+                        first_header = False
                     else:
                         ofile.write(chrom + "\t" + l)
 
