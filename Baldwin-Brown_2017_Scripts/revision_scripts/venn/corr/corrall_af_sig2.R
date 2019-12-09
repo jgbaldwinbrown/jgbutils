@@ -1,0 +1,51 @@
+#!/usr/bin/env Rscript
+
+library(limma)
+library(data.table)
+
+main <- function() {
+
+    old_data = as.data.frame(fread("old_sigonly.bed"))
+    print(head(old_data))
+    hc200_data = as.data.frame(fread("hc200_sigonly.bed"))
+    sam_data = as.data.frame(fread("sam_sigonly.bed"))
+    hc2_data = as.data.frame(fread("hc2_sigonly.bed"))
+    m_old_data = melt(old_data, id.vars=c("V1", "V2", "V3"))
+    rm(old_data)
+    gc()
+    m_hc200_data = melt(hc200_data, id.vars=c("V1", "V2", "V3"))
+    rm(hc200_data)
+    gc()
+    m_hc2_data = melt(hc2_data, id.vars=c("V1", "V2", "V3"))
+    rm(hc2_data)
+    gc()
+    print("pre-melt sam")
+    m_sam_data = melt(sam_data, id.vars=c("V1", "V2", "V3"))
+    print("melted sam")
+    rm(sam_data)
+    gc()
+    print("pre-merge")
+    bigdata = merge(m_old_data, m_hc200_data, by=c("V1", "V2", "V3", "variable"))
+    print("merging 1")
+    rm(m_old_data, m_hc200_data)
+    gc()
+    bigdata = merge(bigdata, m_sam_data, by=c("V1", "V2", "V3", "variable"))
+    print("merging 2")
+    rm(m_sam_data)
+    gc()
+    bigdata = merge(bigdata, m_hc2_data, by=c("V1", "V2", "V3", "variable"))
+    print("merging 3")
+    rm(m_hc2_data)
+    gc()
+    write.table(bigdata, "bigdata_af_sig.txt", quote=FALSE, sep="\t")
+    bigdata = bigdata[complete.cases(bigdata),]
+    colnames(bigdata) = c("CHR", "BP", "BP2", "COL", "UG", "HC200", "SAM", "HC2")
+    write.table(bigdata, "bigdata2_af_sig.txt", quote=FALSE, sep="\t")
+    bigdata_mini = bigdata[,c("UG", "HC200", "SAM", "HC2")]
+    corr_mini = cor(bigdata_mini)
+    write.table(corr_mini, "corr_mini_af_sig.txt", quote=FALSE, sep="\t")
+    corr = cor(bigdata)
+    write.table(corr, "corr_af_sig.txt", quote=FALSE, sep="\t")
+}
+
+main()
