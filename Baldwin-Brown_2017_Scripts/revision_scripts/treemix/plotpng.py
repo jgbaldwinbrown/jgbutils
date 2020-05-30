@@ -14,7 +14,7 @@ outpath = sys.argv[2]
 tree = Phylo.read(inpath, "newick")
 # print(str(tree))
 Phylo.draw(tree, do_show=False)
-plt.savefig(outpath)
+plt.savefig(outpath, format='png')
 
 # # the below draws an unrooted tree with graphviz; this is deprecated because branch lengths aren't accurate:
 # Phylo.draw_graphviz(tree)
