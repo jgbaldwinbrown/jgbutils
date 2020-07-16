@@ -1,0 +1,73 @@
+Significant	D167	JGB00005	Sperm	15458X1
+Significant	UC4M017	JGB00006	Sperm	15458X2
+Significant	D240	JGB00007	Sperm	15458X3
+Non-significant	D265	JGB00008	Blood	15458X4
+Non-significant	D265	JGB00009	Sperm	15458X5
+Significant	24NJ-003-SP	JGB00010	Blood	15458X6
+Significant	24NJ-003-SP	JGB00011	Sperm	15458X7
+Significant	RE7L010	JGB00012	Sperm	15458X8
+Significant	A0NS019	JGB00013	Sperm	15458X9
+Significant	WW5A018	JGB00014	Sperm	15458X10
+Significant	D145	JGB00015	Sperm	15458X11
+Non-significant	QD2Z-012	JGB00016	Blood	15458X12
+Non-significant	QD2Z-012	JGB00017	Sperm	15458X13
+Significant	D170	JGB00018	Sperm	15458X14
+Non-significant	D227	JGB00019	Blood	15458X15
+Non-significant	D227	JGB00020	Sperm	15458X16
+Significant	KD7H	JGB00021	Blood	15458X17
+Significant	KD7H	JGB00022	Sperm	15458X18
+Significant	D223	JGB00023	Sperm	15458X19
+Significant	12YU	JGB00024	Sperm	15458X20
+Significant	D262	JGB00025	Blood	15458X21
+Significant	D262	JGB00026	Sperm	15458X22
+Non-significant	47Q9-013	JGB00027	Blood	15458X23
+Non-significant	47Q9-013	JGB00028	Sperm	15458X24
+Non-significant	D257	JGB00029	Blood	15458X25
+Non-significant	D257	JGB00030	Sperm	15458X26
+Significant	3I9L022-SP	JGB00031	Blood	15458X27
+Significant	3I9L022-SP	JGB00032	Sperm	15458X28
+Significant	D258	JGB00033	Blood	15458X29
+Significant	D258	JGB00034	Sperm	15458X30
+HG00097.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00099.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00101.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00102.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00103.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00105.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00106.mapped.ILLUMINA.bwa.GBR.low_coverage.20121211.bam
+HG00107.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00108.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00109.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00110.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00111.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00112.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00113.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00114.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00115.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00116.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00117.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00119.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00120.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00121.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00122.mapped.ILLUMINA.bwa.GBR.low_coverage.20121211.bam
+HG00123.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00125.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00126.mapped.ILLUMINA.bwa.GBR.low_coverage.20121211.bam
+HG00127.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00128.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00129.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00130.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00131.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00132.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00133.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00136.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00137.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00138.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00140.mapped.ILLUMINA.bwa.GBR.low_coverage.20130415.bam
+HG00142.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00143.mapped.ILLUMINA.bwa.GBR.low_coverage.20121211.bam
+HG00145.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00146.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
+HG00148.mapped.ILLUMINA.bwa.GBR.low_coverage.20121211.bam
+HG00149.mapped.ILLUMINA.bwa.GBR.low_coverage.20121211.bam
+HG00150.mapped.ILLUMINA.bwa.GBR.low_coverage.20120522.bam
