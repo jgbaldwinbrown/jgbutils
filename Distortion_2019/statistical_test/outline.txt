@@ -1,0 +1,5 @@
+calculate per-individual gc underrepresentation
+for each chromosome:
+    calculate effect of gc underrepresentation in individual on value
+for each individual:
+    calculate predicted value based on gc underrepresentation
