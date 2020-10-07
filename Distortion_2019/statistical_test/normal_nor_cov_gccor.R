@@ -28,18 +28,17 @@ pdf_title2 = args$pdf_title2
 gzcom = paste("gunzip -c ", input, sep="")
 data <- as.data.frame(fread(gzcom, header=TRUE, stringsAsFactors=TRUE))
 str(data)
-data$freq = data$hits / data$count
 
 data$pos = factor(data$pos)
 data$sample = factor(data$sample)
 data$sample = factor(data$sample)
 
 str(data)
-l = lm(data, formula = freq_nor_het_blood ~ sample + tissue)
+l = lm(data, formula = adjusted_value ~ sample + tissue)
 p = predict(l, data)
 
 data$p = p
-data$diff = data$freq_nor - data$p
+data$diff = data$adjusted_value - data$p
 data$z = scale(data$diff)
 temp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
 str(temp)
@@ -57,15 +56,18 @@ head(datameans)
 a = sapply(datameans$sample_chrom_tissue,
     function(temp){
         seta = data$sample_chrom_tissue == temp
-        setb = data$tissue == "Blood"
+        setb = data$tissue == "blood"
         groupa = data$diff[seta]
         groupb = data$diff[setb]
+        print("sums")
+        print(sum(!is.na(groupa)) >= 2)
+        print(sum(!is.na(groupb)) >= 2)
         if (
             sum(!is.na(groupa)) >= 2 &
             sum(!is.na(groupb)) >= 2
         ) {
             return(
-                var.test(data$diff[seta],
+                t.test(data$diff[seta],
                     data$diff[setb])$p.value
             )
         } else {
@@ -77,10 +79,10 @@ datameans$p = a
 
 write.table(datameans, txt_out2)
 
-pdf(pdf_out,height=10,width=3)
+pdf(pdf_out,height=30,width=10)
 ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(sample~tissue) + ggtitle(pdf_title)
 dev.off()
 
-pdf(pdf_out2,height=10,width=3)
+pdf(pdf_out2,height=30,width=10)
 ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(sample~tissue) + ggtitle(pdf_title2)
 dev.off()
