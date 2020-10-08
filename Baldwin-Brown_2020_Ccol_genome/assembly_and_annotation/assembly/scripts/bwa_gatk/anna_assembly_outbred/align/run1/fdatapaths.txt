@@ -1,0 +1,1 @@
+/data1/jbrown/louse_project/raw_data/louse_from_mike/LICE/Columbicola_HCI_0213/9784R/Fastq/9784X1_130125_SN1117_0139_AC1J93ACXX_5_1.txt.gz

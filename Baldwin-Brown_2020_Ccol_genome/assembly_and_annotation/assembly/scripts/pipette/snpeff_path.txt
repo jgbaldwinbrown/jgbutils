@@ -1,0 +1,1 @@
+/data1/jbrown/local_programs/snpeff/snpEff/snpEff.jar

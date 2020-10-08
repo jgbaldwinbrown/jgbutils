@@ -1,0 +1,19 @@
+#!/bin/Rscript
+
+library(ggplot2)
+
+args = commandArgs(trailingOnly=TRUE)
+
+inpath <- args[1]
+outpath <- args[2]
+
+data <- read.table(inpath)
+
+pdf(outpath,width=4,height=3)
+ggplot(data,aes(V1))+
+    geom_histogram(bins=100)+
+    scale_x_continuous(lim=c(0,50000))+
+    scale_y_continuous(lim=c(0,50000))+
+    labs(title="Read length histogram",x="Read length",y="Count")+
+    theme_bw()
+dev.off()

@@ -1,0 +1,7 @@
+reference: "~/genomes/Drosophila_melanogaster.BDGP5.4.54.dna.fasta"
+input: "./aligned.fly.bam"
+output: aligned.fly 
+annotate: dm5.34
+gatk: "~/tools/GATK/GenomeAnalysisTK.jar"
+snpeff: "~/tools/snpEff/snpEff.jar"
+snpeff_config: "~/tools/snpEff/snpEff.config"

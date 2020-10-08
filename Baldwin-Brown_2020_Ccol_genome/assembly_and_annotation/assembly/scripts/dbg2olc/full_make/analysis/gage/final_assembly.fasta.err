@@ -1,0 +1,6 @@
+Size of  is 0.0
+Exception in thread "main" java.lang.NumberFormatException: For input string: "3232546710"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+	at java.lang.Integer.parseInt(Integer.java:495)
+	at java.lang.Integer.parseInt(Integer.java:527)
+	at getScaffoldStats.main(getScaffoldStats.java:424)

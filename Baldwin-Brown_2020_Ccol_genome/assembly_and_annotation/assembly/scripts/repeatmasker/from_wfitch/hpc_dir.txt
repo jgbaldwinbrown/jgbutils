@@ -1,0 +1,35 @@
+Tue Jun 13 11:50:51 [5.41 5.36 5.30]  jbaldwi1@hpc-login-1-2:/share/adl/jbaldwi1/all_data_from_dfs2/peromyscus_data/work/repeatmasker
+1041 $ tree -L 2
+.
+├── consensi.fa.classified
+├── peromyscus_assembly_polished_v1.fasta
+├── peromyscus_assembly_polished_v1.fasta.cat.gz
+├── peromyscus_assembly_polished_v1.fasta.masked
+├── peromyscus_assembly_polished_v1.fasta.out
+├── peromyscus_assembly_polished_v1.fasta.out.gff
+├── peromyscus_assembly_polished_v1.fasta.tbl
+├── pleucopus.nhr
+├── pleucopus.nin
+├── pleucopus.nnd
+├── pleucopus.nni
+├── pleucopus.nsq
+├── pleucopus.translation
+├── repeatmodeler_out.txt
+├── repmask.e1139305
+├── repmask.o1139305
+├── repmask.o1143185
+├── RM_30960.TueJan241749172017
+│   ├── consensi.fa
+│   ├── consensi.fa.classified
+│   ├── consensi.fa.masked
+│   ├── round-1
+│   ├── round-2
+│   ├── round-3
+│   ├── round-4
+│   ├── round-5
+│   └── round-6
+├── RM_42770.WedJan250948302017
+├── run_repeatmodeler_and_repeatmasker.sh
+├── sort_fasta_by_length.py
+├── to_do.txt
+└── unaligned.fa

@@ -1,0 +1,7 @@
+Contig Stats
+one
+Chaff bases: Duplicated Reference Bases: Compressed Reference Bases: Bad Trim: Indels >= 5: 0
+
+Corrected Contig Stats
+Scaffold Stats
+Corrected Scaffold Stats

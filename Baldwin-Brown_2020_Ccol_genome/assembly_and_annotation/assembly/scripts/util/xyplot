@@ -1,0 +1,18 @@
+#!/usr/bin/env Rscript
+
+library(ggplot2)
+
+args = commandArgs(trailingOnly=TRUE)
+
+inpathx <- args[1]
+inpathy <- args[2]
+outpath <- args[3]
+
+datax <- read.table(inpathx)$V1
+datay <- read.table(inpathy)$V1
+data <- data.frame(x=datax,y=datay)
+
+pdf(outpath,width=8,height=6)
+ggplot(data,aes(x,y))+
+    geom_point()
+dev.off()

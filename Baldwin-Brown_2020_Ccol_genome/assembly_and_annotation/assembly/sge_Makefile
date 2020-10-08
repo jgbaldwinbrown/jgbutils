@@ -1,0 +1,49 @@
+SHELL := /bin/bash
+
+all: temp/fqjoin/fqjoined.txt temp/jellyfish/jellyfished.txt temp/platanus/plat_gapclose_done.txt
+
+clean:
+	find temp -type f | grep -v 'git_placeholder.txt' | sort | xargs rm
+	find temp -type d -mindepth 1 -empty -delete
+
+full_clean:
+	find temp -type f | grep -v 'git_placeholder.txt' | sort | xargs rm
+	find temp -type d -mindepth 1 -empty -delete
+	find final_files -type f | grep -v 'git_placeholder.txt' | sort | xargs rm
+	find final_files -type d -mindepth 1 -empty -delete
+
+archive:
+	tar -czvf final.tar.gz final_files
+
+copy_nohups:
+	cp --backup=t nohup.out nohup_backups/nohup_backup.txt && rm nohup.out
+
+.PHONY: all clean archive copy_nohups
+
+temp/fqjoin/fqjoined.txt: scripts/fqjoin/run_fqjoin.txt scripts/fqjoin/to_fqjoin.txt
+	rm temp/fqjoin/fqjoined.txt
+	echo {1..4} | parallel -j 6 qsub -sync y bash scripts/fqjoin/run_fqjoin.sh {}
+	touch temp/fqjoin/fqjoined.txt
+
+temp/jellyfish/jellyfished.txt: scripts/jellyfish/run_jellyfish.sh temp/fqjoin/fqjoined.txt
+	rm temp/jellyfish/jellyfished.txt
+	qsub -sync y scripts/jellyfish/run_jellyfish.sh
+	touch temp/jellyfish/jellyfished.txt
+
+temp/platanus/gotpaths.txt: temp/fqjoin/fqjoined.txt
+	find temp/fqjoin -type f -name '*.fq' | grep '180' | sort > temp/platanus/fqjoin_180_paths.txt
+	find temp/fqjoin -type f -name '*.fq' | grep '500' | sort > temp/platanus/fqjoin_500_paths.txt
+
+temp/platanus/run_platanus/run_platanus_scaffold.sh: scripts/platanus/make_runplat_scaffold.py temp/fqjoin/fqjoined.txt
+	qsub -sync y $< -o $@ -e temp/platanus/run_platanus/make_runplat_scaffold_err.txt
+
+temp/platanus/run_platanus/run_platanus_gapclose.sh: scripts/platanus/make_runplat_gapclose.py temp/fqjoin/fqjoined.txt
+	qsub -sync y $< -o $@ -e temp/platanus/run_platanus/make_runplat_gapclose_err.txt
+
+temp/platanus/plat_assembly_done.txt: scripts/platanus/run_platanus_assembly.sh temp/fqjoin/fqjoined.txt
+	qsub -sync y $<
+temp/platanus/plat_scaffold_done.txt: temp/run_platanus/run_platanus_scaffold.sh temp/platanus/gotpaths.txt
+	qsub -sync y $<
+temp/platanus/plat_gapclose_done.txt: temp/run_platanus/run_platanus_gapclose.sh temp/platanus/gotpaths.txt
+	qsub -sync y $<
+

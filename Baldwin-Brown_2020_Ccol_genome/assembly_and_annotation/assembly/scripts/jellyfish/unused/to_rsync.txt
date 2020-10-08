@@ -1,0 +1,3 @@
+/share/adl/jbaldwi1/tiger_shrimp_data/data/jellyfish/v2/get_basic_stats_fq.sh
+/share/adl/jbaldwi1/tiger_shrimp_data/data/jellyfish/v2/read_length_mean.py
+/share/adl/jbaldwi1/tiger_shrimp_data/data/jellyfish/v2/run_jellyfish.sh

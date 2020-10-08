@@ -1,0 +1,6 @@
+taxon.5.500.180_contig_1
+taxon.5.500.180_contig_2
+taxon.5.500.180_contig_3
+taxon.5.500.180_contig_15
+taxon.5.500.180_contig_16
+taxon.5.500.180_contig_17

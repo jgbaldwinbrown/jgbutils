@@ -1,0 +1,3 @@
+/home/jbaldwin/new_home/scripts/make_cens_list.R
+/home/jbaldwin/new_home/scripts/censor_master.py
+/home/jbaldwin/new_home/scripts/filter_by_column.py

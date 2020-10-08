@@ -1,0 +1,2 @@
+rsync: link_stat "/dfs1/bio/jbaldwi1/dbg2olc_from_dfs2/human/dbg2olc_54x/run1/analysis/final_assembly.fasta" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1039) [sender=3.0.6]

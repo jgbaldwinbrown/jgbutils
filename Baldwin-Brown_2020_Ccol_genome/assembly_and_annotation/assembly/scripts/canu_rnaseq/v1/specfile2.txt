@@ -1,0 +1,61 @@
+maxMemory = 512
+maxThreads = 32
+
+#corMhapFilterThreshold=0.0000000002 corMhapOptions="--threshold 0.78 --num-hashes 768 --num-min-matches 2 --ordered-sketch-size 1000 --ordered-kmer-size 14 --min-olap-length 2000 --repeat-idf-scale 50"
+
+corMhapFilterThreshold=0.0000000002
+
+corMhapOptions="--threshold 0.80 --num-hashes 256 --num-min-matches 3 --ordered-sketch-size 1000 --ordered-kmer-size 14 --min-olap-length 2000 --repeat-idf-scale 50"
+
+#{prefix}Concurrency <integer=unset>
+#    Set the number of tasks that can run at the same time, when running without grid support.
+#{prefix}Threads <integer=unset>
+#    Set the number of compute threads used per task.
+#{prefix}Memory <integer=unset>
+#    Set the amount of memory, in gigabytes, to use for each job in a task.
+#
+#Prefix         Algorithm
+#
+#    cor
+#
+#    obt
+#
+#    utg
+#
+#       mhap
+#Overlap generation using the
+#┬mhap│ algorithm for
+#┬cor│=correction,, ┬obt│=trimming
+#or ┬utg│=assembly.
+#
+#    cor
+#
+#    obt
+#
+#    utg
+#
+#       mmap
+#Overlap generation using the
+#┬minimap│ algorithm for
+#┬cor│=correction,, ┬obt│=trimming
+#or ┬utg│=assembly.
+#
+#    cor
+#
+#    obt
+#
+#    utg
+#
+#       ovl
+#Overlap generation using the
+#┬overlapInCore│ algorithm for
+#┬cor│=correction,, ┬obt│=trimming
+#or ┬utg│=assembly.
+#       ovb     Parallel overlap store bucketizing
+#       ovs     Parallel overlap store bucket sorting
+#       cor     Read correction
+#       red     Error detection in reads
+#       oea     Error adjustment in overlaps
+#       bat     Unitig/contig construction
+#       cns     Unitig/contig consensus
+

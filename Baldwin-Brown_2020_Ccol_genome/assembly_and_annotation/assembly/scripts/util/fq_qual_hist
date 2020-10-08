@@ -1,0 +1,18 @@
+#!/bin/Rscript
+
+library(ggplot2)
+
+args = commandArgs(trailingOnly=TRUE)
+
+inpath <- args[1]
+outpath <- args[2]
+
+data <- read.table(inpath)
+
+pdf(outpath,width=4,height=3)
+ggplot(data,aes(V1))+
+    geom_histogram(bins=100)+
+    labs(title="Read quality histogram",x="Quality (% correct)",y="Count")+
+    scale_x_continuous(lim=c(0.5,1))+
+    theme_bw()
+dev.off()

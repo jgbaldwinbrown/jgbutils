@@ -1,0 +1,97 @@
+#maximal read length
+max_rd_len=200
+[LIB]
+##180bps:
+#average insert size
+avg_ins=200
+#if sequence needs to be reversed
+reverse_seq=0
+#in which part(s) the reads are used
+asm_flags=3
+#use only first 100 bps of each read
+rd_len_cutoff=100
+#in which order the reads are used while scaffolding
+rank=1
+# cutoff of pair number for a reliable connection (at least 3 for short insert size)
+pair_num_cutoff=3
+#minimum aligned length to contigs for a reliable read location (at least 32 for short insert size)
+map_len=32
+#a pair of fastq file, read 1 file should always be followed by read 2 file
+q1=/data1/jbrown/louse_project/temp/clean_data/180bp/fqjoin/180_trimmed_R1_paired.fq.gz.un1.fq
+q2=/data1/jbrown/louse_project/temp/clean_data/180bp/fqjoin/180_trimmed_R1_paired.fq.gz.un2.fq
+#fastq file for single reads
+q=/data1/jbrown/louse_project/temp/clean_data/180bp/fqjoin/180_trimmed_R1_paired.fq.gz.join.fq
+[LIB]
+##500bps:
+avg_ins=200
+reverse_seq=0
+asm_flags=3
+rd_len_cutoff=100
+rank=1
+pair_num_cutoff=3
+map_len=32
+q1=/data1/jbrown/louse_project/temp/clean_data/500bp/fqjoin/500_trimmed_R1_paired.fq.gz.un1.fq
+q2=/data1/jbrown/louse_project/temp/clean_data/500bp/fqjoin/500_trimmed_R1_paired.fq.gz.un2.fq
+q=/data1/jbrown/louse_project/temp/clean_data/500bp/fqjoin/500_trimmed_R1_paired.fq.gz.join.fq
+[LIB]
+##3500bp reads:
+avg_ins=3500
+reverse_seq=1
+asm_flags=2
+rank=2
+# cutoff of pair number for a reliable connection (at least 5 for large insert size)
+pair_num_cutoff=5
+#minimum aligned length to contigs for a reliable read location (at least 35 for large insert size)
+map_len=35
+q1=/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/3500_trimmed_R1_paired.fq.gz
+q2=/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/3500_trimmed_R2_paired.fq.gz
+[LIB]
+##8200bp reads:
+avg_ins=8200
+reverse_seq=1
+asm_flags=2
+rank=2
+# cutoff of pair number for a reliable connection (at least 5 for large insert size)
+pair_num_cutoff=5
+#minimum aligned length to contigs for a reliable read location (at least 35 for large insert size)
+map_len=35
+q1=/data1/jbrown/louse_project/temp/clean_data/8200bp/prinseq/8200_prinseqed_1.fastq
+q2=/data1/jbrown/louse_project/temp/clean_data/8200bp/prinseq/8200_prinseqed_2.fastq
+
+#/data1/jbrown/louse_project/temp/clean_data/180bp/trimmomatic/indat_f.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/180bp/trimmomatic/indat_r.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/180bp/trimmomatic/180_trimmed_R1_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/180bp/trimmomatic/180_trimmed_R1_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/180bp/trimmomatic/180_trimmed_R2_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/180bp/trimmomatic/180_trimmed_R2_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/180bp/fqjoin/180_trimmed_R1_paired.fq.gz.join.fq
+#/data1/jbrown/louse_project/temp/clean_data/180bp/fqjoin/180_trimmed_R1_paired.fq.gz.un1.fq
+#/data1/jbrown/louse_project/temp/clean_data/180bp/fqjoin/180_trimmed_R1_paired.fq.gz.un2.fq
+#/data1/jbrown/louse_project/temp/clean_data/500bp/trimmomatic/indat_f.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/500bp/trimmomatic/indat_r.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/500bp/trimmomatic/500_trimmed_R1_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/500bp/trimmomatic/500_trimmed_R1_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/500bp/trimmomatic/500_trimmed_R2_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/500bp/trimmomatic/500_trimmed_R2_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/500bp/fqjoin/500_trimmed_R1_paired.fq.gz.join.fq
+#/data1/jbrown/louse_project/temp/clean_data/500bp/fqjoin/500_trimmed_R1_paired.fq.gz.un1.fq
+#/data1/jbrown/louse_project/temp/clean_data/500bp/fqjoin/500_trimmed_R1_paired.fq.gz.un2.fq
+#/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/indat_f.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/indat_r.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/3500_trimmed_R1_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/3500_trimmed_R1_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/3500_trimmed_R2_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/3500bp/trimmomatic/3500_trimmed_R2_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/indat_f.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/indat_r.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/8200_trimmed_R1_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/8200_trimmed_R1_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/8200_trimmed_R2_paired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/8200_trimmed_R2_unpaired.fq.gz
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/8200_trimmed_R1_paired.fq
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/trimmomatic/8200_trimmed_R2_paired.fq
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/prinseq/8200_prinseqed_1.fastq
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/prinseq/8200_prinseqed_2.fastq
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/prinseq/8200_prinseqed_bad_1.fastq
+#/data1/jbrown/louse_project/temp/clean_data/8200bp/prinseq/8200_prinseqed_bad_2.fastq
+

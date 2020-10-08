@@ -1,0 +1,4 @@
+/data1/mshapiro/data/columbicola/180bp_library/duplicates_removed/columbicola_180_seqyclean_PE1.fastq.gz
+/data1/mshapiro/data/columbicola/180bp_library/duplicates_removed/columbicola_180_seqyclean_PE2.fastq.gz
+/data1/mshapiro/data/columbicola/500bp_library/columbicola_500_seqyclean_PE1.fastq
+/data1/mshapiro/data/columbicola/500bp_library/columbicola_500_seqyclean_PE2.fastq

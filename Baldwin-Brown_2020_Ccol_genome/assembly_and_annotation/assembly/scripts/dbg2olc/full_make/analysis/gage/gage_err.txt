@@ -1,0 +1,59 @@
+one
+ERROR: The following critical files could not be used
+/dfs1/bio/jbaldwi1/dbg2olc_from_dfs2/human/dbg2olc_54x/run1/analysis/gage/final_assembly.fasta
+Check your paths and file permissions and try again
+two
+ERROR: Could not parse delta file, final_assembly.fasta.delta
+error no: 400
+three
+ERROR: The following critical files could not be used
+
+
+Check your paths and file permissions and try again
+four
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access final_assembly.fasta: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.qdiff: No such file or directory
+/bin/ls: cannot access out.rdiff: No such file or directory
+/bin/ls: cannot access out.qdiff: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+cat: out.rdiff: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+/bin/ls: cannot access out.report: No such file or directory
+five
+cat: out.1coords: No such file or directory
+six
+seven
+Exception in thread "main" java.io.FileNotFoundException: final_assembly.fasta (No such file or directory)
+	at java.io.FileInputStream.open(Native Method)
+	at java.io.FileInputStream.<init>(FileInputStream.java:146)
+	at java.io.FileInputStream.<init>(FileInputStream.java:101)
+	at SplitFastaByLetter.processFile(SplitFastaByLetter.java:31)
+	at SplitFastaByLetter.main(SplitFastaByLetter.java:69)
+eight
+1: PREPARING DATA
+2,3: RUNNING mummer AND CREATING CLUSTERS
+# reading input file "final_assembly.fasta.ntref" of length 3232547235
+# construct suffix tree for sequence of length 3232547235
+# (maximum reference length is 536870908)
+# (maximum query length is 4294967295)
+# process 32325472 characters per dot
+/data/apps/MUMmer/3.23/mummer: suffix tree construction failed: textlen=3232547235 larger than maximal textlen=536870908
+ERROR: mummer and/or mgaps returned non-zero
+nine
+ERROR: Could not parse delta file, final_assembly.fasta.delta
+error no: 400
+ten
+ERROR: Could not parse delta file, final_assembly.fasta.fdelta
+error no: 402
+eleven
+ERROR: Could not parse delta file, final_assembly.fasta.fdelta
+error no: 402
+twelve

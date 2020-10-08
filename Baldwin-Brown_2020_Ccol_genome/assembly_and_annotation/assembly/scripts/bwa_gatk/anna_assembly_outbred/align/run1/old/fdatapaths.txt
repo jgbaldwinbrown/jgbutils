@@ -1,0 +1,4 @@
+/Volumes/Jim_9TB_RAID5/louse_project/raw_data/louse_data_from_anna/binner_180_500_libraries/louse.raw.180.wd_binned.out_0.3.11262X1_141226_D00294_0150_AC67DPANXX_5_1.txt.gz
+/Volumes/Jim_9TB_RAID5/louse_project/raw_data/louse_data_from_anna/binner_180_500_libraries/louse.raw.180.wd_binned.out_0.5.11262X1_141226_D00294_0150_AC67DPANXX_5_1.txt.gz
+/Volumes/Jim_9TB_RAID5/louse_project/raw_data/louse_data_from_anna/binner_180_500_libraries/louse.raw.500.wd_binned.out_0.3.11262X2_141226_D00294_0150_AC67DPANXX_5_1.txt.gz
+/Volumes/Jim_9TB_RAID5/louse_project/raw_data/louse_data_from_anna/binner_180_500_libraries/louse.raw.500.wd_binned.out_0.5.11262X2_141226_D00294_0150_AC67DPANXX_5_1.txt.gz
