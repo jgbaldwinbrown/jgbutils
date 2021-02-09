@@ -28,7 +28,7 @@ TOTBP=`cat total_bp.txt | tr -d '\n'`
 TOTREP=`cat repeat_type_counts.txt | datamash sum 1 | tr -d '\n'`
 
 cat repeat_type_counts.txt | \
-awkf -v totbp="$TOTBP" -v totrep="$TOTREP" '{print($1, $1/totbp, $1/totrep, $2)}' \
+awk -f "\t" -v OFS="\t" -v totbp="$TOTBP" -v totrep="$TOTREP" '{print($1, $1/totbp, $1/totrep, $2)}' \
 > repeat_type_props.txt
 
 # calculate proportion of repeat genuses:
@@ -42,7 +42,7 @@ TOTBP=`cat total_bp.txt | tr -d '\n'`
 TOTREP=`cat repeat_genus_counts.txt | datamash sum 1 | tr -d '\n'`
 
 cat repeat_genus_counts.txt | \
-awkf -v totbp="$TOTBP" -v totrep="$TOTREP" '{print($1, $1/totbp, $1/totrep, $2)}' \
+awk -f "\t" -v OFS="\t" -v totbp="$TOTBP" -v totrep="$TOTREP" '{print($1, $1/totbp, $1/totrep, $2)}' \
 > repeat_genus_props.txt
 
 # calculate proportion of repeat supergenuses
@@ -57,5 +57,5 @@ TOTBP=`cat total_bp.txt | tr -d '\n'`
 TOTREP=`cat repeat_supergenus_counts.txt | datamash sum 1 | tr -d '\n'`
 
 cat repeat_supergenus_counts.txt | \
-awkf -v totbp="$TOTBP" -v totrep="$TOTREP" '{print($1, $1/totbp, $1/totrep, $2)}' \
+awk -f "\t" -v OFS="\t" -v totbp="$TOTBP" -v totrep="$TOTREP" '{print($1, $1/totbp, $1/totrep, $2)}' \
 > repeat_supergenus_props.txt
