@@ -1,0 +1,25 @@
+
+formats.txt
+
+getformats.sh
+
+Pediculus_humanus.PhumU2.47.gff3.gz
+##gff-version 3
+##sequence-region   DS234984 1 4764
+
+Pediculus_humanus.PhumU2.cds.all.fa.gz
+>PHUM000210-RA cds supercontig:PhumU2:DS234986:20136:32801:1 gene:PHUM000210 gene_biotype:protein_coding transcript_biotype:protein_coding description:Putative uncharacterized protein [Source:UniProtKB/TrEMBL;Acc:E0V8V4]
+ATGACTTTTGGATACCTTCCACCATCCGATAAAGAAACCGGATTATTAAGAACTGATGAA
+
+Pediculus_humanus.PhumU2.dna.toplevel.fa.gz
+>DS235882 dna:supercontig supercontig:PhumU2:DS235882:1:2788692:1 REF
+ATTCGCCGAAATTATTAATAATAATAATAATAATGATAAATTTCCTTGGTAAAAAAAAAC
+
+Pediculus_humanus.PhumU2.pep.all.fa.gz
+>PHUM000210-PA pep supercontig:PhumU2:DS234986:20136:32801:1 gene:PHUM000210 transcript:PHUM000210-RA gene_biotype:protein_coding transcript_biotype:protein_coding description:Putative uncharacterized protein [Source:UniProtKB/TrEMBL;Acc:E0V8V4]
+MTFGYLPPSDKETGLLRTDEQLKTAIKNLQNFANIPATGELDANTLELLKKPRCGLPDYP
+
+
+
+DS234986	VectorBase	gene	20136	32801	.	+	.	ID=gene:PHUM000210;biotype=protein_coding;description=Putative uncharacterized protein [Source:UniProtKB/TrEMBL%3BAcc:E0V8V4];gene_id=PHUM000210;logic_name=vectorbase_pediculus_humanus
+DS234986	VectorBase	mRNA	20136	32801	.	+	.	ID=transcript:PHUM000210-RA;Parent=gene:PHUM000210;biotype=protein_coding;transcript_id=PHUM000210-RA

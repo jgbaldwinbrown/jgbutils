@@ -1,0 +1,25 @@
+
+cds.fa.gz
+>maker-PGA_scaffold_104__1_contigs__length_7317-augustus-gene-0.2-mRNA-1 gene=maker-PGA_scaffold_104__1_contigs__length_7317-augustus-gene-0.2
+ATGACCAGCCCTGTCAACAGAATAGAAAGAAGATTGAAAAGCTCAGGCCGAGGACCTTCCTTCGAGCAAA
+
+formats.txt
+
+getformats.sh
+
+louseref.all.sprot.interproscan_tsv.gff.gz
+##gff-version 3
+PGA_scaffold_391__1_contigs__length_999	.	contig	1	999	.	.	.	ID=PGA_scaffold_391__1_contigs__length_999;Name=PGA_scaffold_391__1_contigs__length_999
+
+louseref_untwelve.all.maker.proteins.fasta.gz
+>maker-PGA_scaffold_260__1_contigs__length_14479-augustus-gene-0.4-mRNA-1 protein AED:0.33 eAED:0.33 QI:341|0.2|0.33|0.66|1|1|6|98|410
+MRILVNGGSNDFELTSSDVSTETSDSEFSWEKDIKDSGNQISQQWEAIERTLYQETGEQV
+
+pigeon_lice_ctgs_breaks_final.review.fasta.gz
+>PGA_scaffold_1__81_contigs__length_22903049
+TGGTCAAAGTCGAAAATTCAACTCCAAATCAACCCATGGTTGGACTGGTCAAATGAAAATTAACTCTAATCCCCAACCCA
+
+
+
+PGA_scaffold_260__1_contigs__length_14479	maker	gene	294	4080	.	+	.	ID=maker-PGA_scaffold_260__1_contigs__length_14479-augustus-gene-0.4;Name=maker-PGA_scaffold_260__1_contigs__length_14479-augustus-gene-0.4;Note=Similar to CRK1: Serine/threonine-protein kinase BUR1 (Candida albicans (strain SC5314 / ATCC MYA-2876) OX%3D237561);Dbxref=Coils:Coil,InterPro:IPR022194,MobiDBLite:mobidb-lite,Pfam:PF12516;
+PGA_scaffold_260__1_contigs__length_14479	maker	mRNA	294	4080	.	+	.	ID=maker-PGA_scaffold_260__1_contigs__length_14479-augustus-gene-0.4-mRNA-1;Parent=maker-PGA_scaffold_260__1_contigs__length_14479-augustus-gene-0.4;Name=maker-PGA_scaffold_260__1_contigs__length_14479-augustus-gene-0.4-mRNA-1;_AED=0.33;_eAED=0.33;_QI=341|0.2|0.33|0.66|1|1|6|98|410;Note=Similar to CRK1: Serine/threonine-protein kinase BUR1 (Candida albicans (strain SC5314 / ATCC MYA-2876) OX%3D237561);Dbxref=Coils:Coil,InterPro:IPR022194,MobiDBLite:mobidb-lite,Pfam:PF12516;

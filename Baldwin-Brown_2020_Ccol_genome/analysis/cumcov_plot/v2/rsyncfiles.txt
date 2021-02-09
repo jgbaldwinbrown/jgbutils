@@ -1,0 +1,6 @@
+/data1/jbrown/louse_project/scripts/util/cumcov_plot_multiple_v3.R
+/data1/jbrown/louse_project/temp/hic_scaffold/hic_scaf_lengths.txt
+/data1/jbrown/louse_project/temp/canu/v2/canu_v2_lengths.txt
+/data1/jbrown/louse_project/temp/canu/v1/canu_v1_lengths.txt
+/data1/jbrown/louse_project/temp/canu/v3/clc_v3_lengths.txt
+/data1/jbrown/louse_project/temp/canu/v3/canu_v3_lengths.txt

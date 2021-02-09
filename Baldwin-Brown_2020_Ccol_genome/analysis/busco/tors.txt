@@ -1,0 +1,12 @@
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/backup/busco_out2/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_prots/trash/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_prots/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_prots_onetrans/trash/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_prots_onetrans/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_transcripts/trash/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_transcripts/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_transcripts_onetrans/trash/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_transcripts_onetrans/busco_out1/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/test/busco_out2/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/trash/old_baccut/busco_out2/run_busco_ref/short_summary_busco_ref.txt
+/uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_out2/run_busco_ref/short_summary_busco_ref.txt

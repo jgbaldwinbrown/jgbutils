@@ -1,0 +1,11 @@
+dmel-all-translation-r6.34.fasta
+dmel_lists/flybase_chemo_prots.txt
+dmel_lists/flybase_detox_prots.txt
+dmel_lists/flybase_gpcr_prots.txt
+dmel_lists/flybase_insulin_prots.txt
+dmel_lists/flybase_odorantbinding_prots.txt
+dmel_lists/flybase_olfac_prots.txt
+dmel_lists/flybase_opsin_prots.txt
+dmel_lists/flybase_taste_prots.txt
+dmel_lists/flybase_tor_prots.txt
+full_recip_phum2dmel.txt
