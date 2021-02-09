@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+rsync -avP run/SynIma-output/config.txt.pdf /home/jgbaldwinbrown/Documents/work_stuff/louse/papers/genome_paper/latex

@@ -1,0 +1,15 @@
+# BUSCO version is: 3.0.2 
+# The lineage dataset is: insecta_odb9 (Creation date: 2016-02-13, number of species: 42, number of BUSCOs: 1658)
+# To reproduce this run: python /uufs/chpc.utah.edu/sys/installdir/busco/3.0.2/scripts/run_BUSCO.py -i /uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/louseref_untwelve.all.maker.baccut.proteins.onetrans.fasta -o busco_ref -l /uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/busco_prots_onetrans/busco_out1/insecta_odb9/ -m proteins -c 1 --long
+#
+# Summarized benchmarking in BUSCO notation for file /uufs/chpc.utah.edu/common/home/shapiro-group2/jim/new/louse/ref/alt_trans_baccut2_small_chr8/louseref_untwelve.all.maker.baccut.proteins.onetrans.fasta
+# BUSCO was run in mode: proteins
+
+	C:87.4%[S:86.7%,D:0.7%],F:3.3%,M:9.3%,n:1658
+
+	1450	Complete BUSCOs (C)
+	1438	Complete and single-copy BUSCOs (S)
+	12	Complete and duplicated BUSCOs (D)
+	55	Fragmented BUSCOs (F)
+	153	Missing BUSCOs (M)
+	1658	Total BUSCO groups searched

@@ -1,0 +1,3 @@
+scripts/util/cumcov_plot_multiple_v4_final.R
+temp/hic_scaffold/hic_scaf_lengths.txt
+temp/canu/v2/canu_v2_lengths.txt

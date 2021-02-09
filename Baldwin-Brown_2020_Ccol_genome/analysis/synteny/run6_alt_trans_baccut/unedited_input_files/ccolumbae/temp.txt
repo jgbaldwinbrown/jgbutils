@@ -1,0 +1,8 @@
+cds.fa.gz
+formats.txt
+getformats.sh
+louseref.all.sprot.interproscan_tsv.gff.gz
+louseref_untwelve.all.maker.proteins.fasta.gz
+pigeon_lice_ctgs_breaks_final.review.fasta.gz
+temp.txt
+unused

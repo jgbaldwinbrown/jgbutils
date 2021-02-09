@@ -1,0 +1,10 @@
+opsin	28	40	40	275
+gpcr	50	66	69	408
+olfac	6	6	8	152
+taste	3	4	3	150
+odorantbinding	4	6	7	248
+insulin	46	59	61	349
+tor	47	51	57	225
+chemo	44	54	57	441
+detox	16	16	18	132
+all	5261	6492	6799	30728

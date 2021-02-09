@@ -1,0 +1,9 @@
+opsin	GO:0007602
+g_protein_coupled_receptor	GO:0004930
+olfactory_receptor_activity	GO:0004984
+taste_receptor_activity	GO:0008527
+chemosensory_behavior	GO:0007635
+insulin_receptor_signaling_pathway	GO:0008286
+tor_signaling	GO:0031929
+detoxification	GO:0098754
+odorant_binding	GO:0005549
