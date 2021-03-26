@@ -5,8 +5,14 @@ the pigeon louse Columbicola columbae, a model ectoparasite".
 
 ## contents
 
+- Genome / annotation files
 - Scripts
 - `wavy_choose` link
+
+## Genome and annotation files
+
+The genome is officially available from NCBI Genbank. The initial assembly, as well as the annotation, are available at this URL:
+[https://github.com/jgbaldwinbrown/c\_columbae\_genome](https://github.com/jgbaldwinbrown/c_columbae_genome)
 
 ## `wavy_choose`
 
