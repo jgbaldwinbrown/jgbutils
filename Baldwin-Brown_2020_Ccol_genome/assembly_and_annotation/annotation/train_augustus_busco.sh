@@ -9,12 +9,12 @@ set -e
 
 module load busco
 
-export FASTA=/scratch/general/lustre/u6012238/louse/maker/ref/louseref.fasta
-export OPATH=/scratch/general/lustre/u6012238/louse/maker/aug_train_busco2_out/
+export FASTA=/path/to/ref.fasta
+export OPATH=/path/to/busco/output/dir/
 export LPATH=${OPATH}/insecta_odb9/
-export SP=columbicola_columbae2
-export OPREFIX=augustus_train2
-export AUG_ORIG_CONF=/uufs/chpc.utah.edu/sys/installdir/augustus/3.3/config/
+export SP=augustus_species_name_ie_columbicola_columbae
+export OPREFIX=augustus_train_run
+export AUG_ORIG_CONF=/path/to/augustus/installation/augustus/3.3/config/
 export AUGUSTUS_CONFIG_PATH=${OPATH}/augustus_dir
 export AUGUSTUS_SPECIES_DIR=${AUGUSTUS_CONFIG_PATH}/species/${SP}/
 export START_DIR=`pwd`

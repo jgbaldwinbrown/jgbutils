@@ -17,8 +17,7 @@ source $SCRIPTS/slurm_job_prerun
 #load modules
 module load maker/3
 
-export AUGUSTUS_CONFIG_PATH=/uufs/chpc.utah.edu/common/home/shapiro-group1/jim/new/maker/final_run/final4_realfinal/augustus_config_rename
-
+export AUGUSTUS_CONFIG_PATH=/path/to/busco/output/dir/augustus_dir
 #run serial or mpi job
 cd $WORK && \
 ibrun -tcp maker maker_opts.ctl maker_bopts.ctl maker_exe.ctl
