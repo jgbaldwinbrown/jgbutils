@@ -32,3 +32,9 @@ The idea is a sort of improvised f-test. Not useful compared to actual f-test.
 indicates that covariance with GC of chromosome is taken into account.
 Should correct for gc bias as observed in the paper. Make sure you're
 actually calculating a different gc bias level for each individual.
+
+## Tests actually used in the published paper:
+
+- normal_nor.R: Non-GC-corrected sex distortion test, SNP chip
+- normal_nor_f.R: Autosome distortion test, SNP chip
+- normal_nor_cov.R: GC-corrected sex distortion test, SNP chip
