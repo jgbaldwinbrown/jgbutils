@@ -41,6 +41,7 @@ data$freq_bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$
 
 data$freq_nor = (data$freq - data$freq_bloodmean) / data$freq_bloodsd
 
+print(data)
 l = lm(data, formula = freq_nor ~ sample + tissue)
 p = predict(l, data)
 
