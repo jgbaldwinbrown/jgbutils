@@ -70,10 +70,12 @@ datameans$p = a
 
 write.table(datameans, txt_out2)
 
-pdf(pdf_out,height=10,width=3)
+plot_nrows = length(levels(factor(datameans$indiv)))
+
+pdf(pdf_out,height=1 * plot_nrows,width=3)
 ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title)
 dev.off()
 
-pdf(pdf_out2,height=10,width=3)
+pdf(pdf_out2,height=1 * plot_nrows,width=3)
 ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2)
 dev.off()

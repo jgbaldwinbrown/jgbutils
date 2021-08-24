@@ -8,6 +8,6 @@ set -e
 #parallel -j 7
 
 for i in 0.10 0.11 0.12 0.13 0.14 0.15 0.16; do
-echo "Rscript normal_nor_mini.R -o normal_nor_out1_trial2b_d${i}.txt -O normal_nor_out2_trial2b_d${i}.txt -p normal_nor_plot1_trial2b_d${i}.pdf -P normal_nor_plot2_trial2b_d${i}.pdf bias_nocov_trial2_d${i}.txt"
+echo "Rscript normal_nor_mini.R -o data/normal_nor_out1_trial2b_d${i}.txt -O data/normal_nor_out2_trial2b_d${i}.txt -p data/normal_nor_plot1_trial2b_d${i}.pdf -P data/normal_nor_plot2_trial2b_d${i}.pdf data/bias_nocov_trial2_d${i}.txt"
 done | \
-parallel -j 7
+parallel -j 8
