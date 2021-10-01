@@ -10,6 +10,14 @@ deparse1 = getFromNamespace("deparse1", "backports")
 suppressMessages(library(typed))
 options(error = quote({dump.frames(to.file=TRUE); q()}))
 
+# subset_mean <- function(dat,x) {
+# 	mean(dat$freq[dat$pos==x], na.rm=TRUE)
+# }
+# 
+# subset_sd <- function(dat, x) {
+# 	sd(dat$freq[dat$pos==x], na.rm=TRUE)
+# }
+
 main <- function() {
     args = get_args()
     if (args$test == "freq_f") {
@@ -67,9 +75,10 @@ run_freq_f <- function(args) {
     data <- as.data.frame(fread(input))
     if (args$rename) {
         data <-rename_data(data)
-        data$freq = data$afrac
+        data$freq <- data$value
+        # data$freq = data$afrac
     } else {
-        data$freq = data$hits / data$count
+        data$freq <- data$hits / data$count
     }
 
     data$pos = factor(data$pos)
@@ -143,7 +152,9 @@ run_coverage_t <- function(args) {
     # data <- read.table(input)
     data <- as.data.frame(fread(input))
     if (args$rename) {
-        data$freq = data$afrac
+        data <-rename_data(data)
+        data$freq = data$value
+        # data$freq = data$afrac
     } else {
         data$freq = data$count
     }
@@ -216,9 +227,12 @@ run_coverage_t_cov <- function(args) {
     # data <- read.table(input)
     data <- as.data.frame(fread(input))
     if (args$rename) {
-        data$freq = data$afrac
+        data <-rename_data(data)
+        data$freq = data$value
+        # data$freq = data$afrac
+    } else {
+        data$freq = data$count
     }
-    data$freq = data$count
     
     data$pos = factor(data$pos)
     data$indiv = factor(data$indiv)
@@ -227,15 +241,25 @@ run_coverage_t_cov <- function(args) {
     data_blood = data[data$tissue=="blood",]
     
     pos_stats = data.frame(pos=levels(factor(data_blood$pos)))
-    pos_stats$freq_bloodmeans = sapply(levels(factor(data_blood$pos)), function(x){mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-    pos_stats$freq_bloodsd = sapply(levels(factor(data_blood$pos)), function(x){sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
+    pos_stats$freq_bloodmeans = sapply(
+        levels(factor(data_blood$pos)), 
+        function(x) {
+            mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)
+        }
+    )
+    pos_stats$freq_bloodsd = sapply(
+        levels(factor(data_blood$pos)),
+        function(x) {
+            sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)
+        }
+    )
     
     data$freq_bloodmean = apply(data, 1, function(x){pos_stats$freq_bloodmeans[pos_stats$pos==x["pos"]]})
     data$freq_bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$pos==x["pos"]]})
     
     data$freq_nor = (data$freq - data$freq_bloodmean) / data$freq_bloodsd
     
-    l = lm(data, formula = freq_nor ~ per_chrom_gc_index * sample + tissue)
+    l = lm(data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
     p = predict(l, data)
     
     data$p = p
