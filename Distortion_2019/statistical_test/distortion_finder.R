@@ -230,7 +230,19 @@ run_coverage_t_cov <- function(args) {
     pdf_title3 = args$pdf_title3
     
     # data <- read.table(input)
-    data <- as.data.frame(fread(input))
+    data <- as.data.frame(fread(input, colClasses = c(
+        "factor",
+        "factor",
+        "numeric",
+        "factor",
+        "factor",
+        "numeric",
+        "factor",
+        "numeric",
+        "numeric",
+        "numeric",
+        "numeric"
+    )))
     if (args$rename) {
         data <-rename_data(data)
         data$freq = data$value
