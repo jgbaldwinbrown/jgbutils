@@ -228,9 +228,12 @@ run_coverage_t_cov <- function(args) {
     pdf_title2 = args$pdf_title2
     pdf_out3 = args$pdf_out3
     pdf_title3 = args$pdf_title3
+
+    print(-2)
     
     # data <- read.table(input)
     data <- as.data.frame(fread(input))
+    print(-1)
     if (args$rename) {
         data <-rename_data(data)
         data$freq = data$value
@@ -238,12 +241,13 @@ run_coverage_t_cov <- function(args) {
     } else {
         data$freq = data$count
     }
+    print(0)
     
     data$pos = factor(data$pos)
     data$indiv = factor(data$indiv)
     data$sample = factor(data$sample)
     
-    data_blood = data[data$tissue=="blood",]
+    # data_blood = data[data$tissue=="blood",]
 
     print(1)
     
