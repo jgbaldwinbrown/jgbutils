@@ -78,8 +78,12 @@ run_freq_f <- function(args) {
     data <- as.data.frame(fread(input))
     if (args$rename) {
         data <-rename_data(data)
-        data$freq <- data$value
-        # data$freq = data$afrac
+	if (args$test != "freq_f_ill") {
+		data$freq <- data$value
+		# data$freq = data$afrac
+	} else {
+		data$freq <- data$hits / data$count
+	}
     } else {
         data$freq <- data$hits / data$count
     }
@@ -87,15 +91,6 @@ run_freq_f <- function(args) {
     data$pos = factor(data$pos)
     data$indiv = factor(data$indiv)
     data$sample = factor(data$sample)
-
-    data_blood = data[data$tissue=="blood",]
-
-    pos_stats = data.frame(pos=levels(factor(data_blood$pos)))
-    pos_stats$freq_bloodmeans = sapply(levels(factor(data_blood$pos)), function(x){mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-    pos_stats$freq_bloodsd = sapply(levels(factor(data_blood$pos)), function(x){sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-
-    data$bloodmean = apply(data, 1, function(x){pos_stats$freq_bloodmeans[pos_stats$pos==x["pos"]]})
-    data$bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$pos==x["pos"]]})
 
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
 
@@ -130,20 +125,21 @@ run_freq_f <- function(args) {
     plot_nrows = length(levels(factor(datameans$indiv)))
 
     pdf(pdf_out,height=1 * plot_nrows,width=3)
-    ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title)
+    print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
     dev.off()
 
     pdf(pdf_out2,height=1 * plot_nrows,width=3)
-    ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2)
+    print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
     dev.off()
 }
 
 run_freq_f_ill <- function(args) {
+	run_freq_f(args)
 }
 
 run_coverage_t <- function(args) {
     args <- parser$parse_args()
-    
+
     input = args$input
     txt_out = args$txt_out
     txt_out2 = args$txt_out2
@@ -151,36 +147,31 @@ run_coverage_t <- function(args) {
     pdf_title = args$pdf_title
     pdf_out2 = args$pdf_out2
     pdf_title2 = args$pdf_title2
-    
+
     # data <- read.table(input)
     data <- as.data.frame(fread(input))
     if (args$rename) {
         data <-rename_data(data)
-        data$freq = data$value
-        # data$freq = data$afrac
+	if (args$test != "coverage_t_ill") {
+		data$freq = data$value
+		# data$freq = data$afrac
+	} else {
+		data$freq = data$count
+	}
     } else {
         data$freq = data$count
     }
     # data$freq = data$hits / data$count
-    
+
     data$pos = factor(data$pos)
     data$indiv = factor(data$indiv)
     data$sample = factor(data$sample)
-    
-    data_blood = data[data$tissue=="blood",]
-    
-    pos_stats = data.frame(pos=levels(factor(data_blood$pos)))
-    pos_stats$freq_bloodmeans = sapply(levels(factor(data_blood$pos)), function(x){mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-    pos_stats$freq_bloodsd = sapply(levels(factor(data_blood$pos)), function(x){sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)})
-    
-    data$bloodmean = apply(data, 1, function(x){pos_stats$freq_bloodmeans[pos_stats$pos==x["pos"]]})
-    data$bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$pos==x["pos"]]})
-    
+
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
-    
+
     l = lm(data, formula = freq_nor ~ sample + tissue)
     p = predict(l, data)
-    
+
     data$p = p
     data$diff = data$freq_nor - data$p
     data$z = scale(data$diff)
@@ -188,15 +179,15 @@ run_coverage_t <- function(args) {
     str(temp)
     data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
     data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
-    
+
     head(data)
     write.table(data, txt_out)
-    
+
     datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
     colnames(datameans) = c("indiv", "chrom", "tissue", "x")
     datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
     head(datameans)
-    
+
     a = sapply(datameans$indiv_chrom_tissue,
         function(temp){
             t.test(data$diff[data$indiv_chrom_tissue == temp],
@@ -204,17 +195,17 @@ run_coverage_t <- function(args) {
         }
     )
     datameans$p = a
-    
+
     write.table(datameans, txt_out2)
-    
+
     plot_nrows = length(levels(factor(datameans$indiv)))
-    
+
     pdf(pdf_out,height=1 * plot_nrows,width=3)
-    ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title)
+    print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
     dev.off()
-    
+
     pdf(pdf_out2,height=1 * plot_nrows,width=3)
-    ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2)
+    print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
     dev.off()
 }
 
@@ -230,57 +221,47 @@ run_coverage_t_cov <- function(args) {
     pdf_title3 = args$pdf_title3
 
     print(-2)
-    
+
     # data <- read.table(input)
     data <- as.data.frame(fread(input))
     print(-1)
     if (args$rename) {
         data <-rename_data(data)
-        data$freq = data$value
-        # data$freq = data$afrac
+	if (args$test != "coverage_t_cov_ill") {
+		data$freq = data$value
+		# data$freq = data$afrac
+	} else {
+		data$freq = data$count
+	}
     } else {
         data$freq = data$count
     }
     print(0)
-    
+
     data$pos = factor(data$pos)
     data$indiv = factor(data$indiv)
     data$sample = factor(data$sample)
-    
-    # data_blood = data[data$tissue=="blood",]
 
     print(1)
-    
-    # pos_stats = data.frame(pos=levels(factor(data_blood$pos)))
-    # pos_stats$freq_bloodmeans = sapply(
-    #     levels(factor(data_blood$pos)), 
-    #     function(x) {
-    #         mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)
-    #     }
-    # )
-    # pos_stats$freq_bloodsd = sapply(
-    #     levels(factor(data_blood$pos)),
-    #     function(x) {
-    #         sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)
-    #     }
-    # )
 
     print(2)
-    
-    # data$freq_bloodmean = apply(data, 1, function(x){pos_stats$freq_bloodmeans[pos_stats$pos==x["pos"]]})
-    # print(3)
-    # data$freq_bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$pos==x["pos"]]})
-    # print(4)
-    
+
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
     print(5)
-    
+    print(gc())
+
+    print(5.1)
+    print(gc())
     data = data[!is.nan(data$freq_nor) & !is.na(data$freq_nor) & !is.infinite(data$freq_nor),]
+    print(5.2)
+    print(gc())
     l = lm(data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
-    print(5)
+    print(5.3)
+    print(gc())
     p = predict(l, data)
     print(6)
-    
+    print(gc())
+
     data$p = p
     print(7)
     data$diff = data$freq_nor - data$p
@@ -295,17 +276,17 @@ run_coverage_t_cov <- function(args) {
     print(12)
     data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
     print(13)
-    
+
     head(data)
     write.table(data, txt_out)
-    
+
     print(14)
     datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
     colnames(datameans) = c("indiv", "chrom", "tissue", "x")
     datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
     head(datameans)
     print(15)
-    
+
     a = sapply(datameans$indiv_chrom_tissue,
         function(temp){
             t.test(data$diff[data$indiv_chrom_tissue == temp],
@@ -313,22 +294,22 @@ run_coverage_t_cov <- function(args) {
         }
     )
     datameans$p = a
-    
+
     print(16)
     write.table(datameans, txt_out2)
-    
+
     print(17)
     pdf(pdf_out,height=10,width=3)
     print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
     dev.off()
-    
+
     print(18)
     pdf(pdf_out2,height=10,width=3)
     print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
     dev.off()
 
     datameans$fdr_p = p.adjust(datameans$p, method = "BH")
-    
+
     print(19)
     pdf(pdf_out3,height=10,width=3)
     print(ggplot(data=datameans, aes(chrom, -log10(fdr_p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title3))
@@ -336,9 +317,11 @@ run_coverage_t_cov <- function(args) {
 }
 
 run_coverage_t_ill <- function(args) {
+	run_coverage_t(args)
 }
 
 run_coverage_t_cov_ill <- function(args) {
+	run_coverage_t_cov(args)
 }
 
 main()
