@@ -40,7 +40,7 @@ type posmap map[chrpos]*posentry
 func mapit(d dataframe) (cmap posmap) {
 	cmap = make(posmap)
 	for _, e := range d.entries {
-		if e.tissue == "blood" {
+		if e.tissue == "blood" || e.tissue == "Blood" {
 			vals, ok := cmap[e.chrpos]
 			if ! ok {
 				cmap[e.chrpos] = new(posentry)
@@ -52,7 +52,7 @@ func mapit(d dataframe) (cmap posmap) {
 	return cmap
 }
 
-func parse_data(r io.Reader) (data dataframe, err error) {
+func parse_data(r io.Reader, use_hits bool, use_count bool) (data dataframe, err error) {
 	s := fasttsv.NewScanner(r)
 	s.Scan()
 
@@ -60,8 +60,24 @@ func parse_data(r io.Reader) (data dataframe, err error) {
 	for i, v := range s.Line() {
 		header[v] = i
 	}
+
+	var hitscol int
+	var countcol int
+	var ok bool
+	if use_hits {
+		hitscol, ok = header["hits"]
+		if !ok { return data, fmt.Errorf("Error: column %s not found.", "hits") }
+		countcol, ok = header["count"]
+		if !ok { return data, fmt.Errorf("Error: column %s not found.", "count") }
+	}
+
 	freqcol, ok := header["value"]
-	if !ok { return data, fmt.Errorf("Error: column %s not found.", "freq") }
+	if !ok || use_count {
+		freqcol, ok = header["count"]
+		if !ok {
+			return data, fmt.Errorf("Error: column %s not found.", "freq")
+		}
+	}
 	poscol, ok := header["pos"]
 	if !ok { return data, fmt.Errorf("Error: column %s not found.", "col") }
 	chromcol, ok := header["chrom"]
@@ -75,8 +91,24 @@ func parse_data(r io.Reader) (data dataframe, err error) {
 		pos, err := strconv.Atoi(s.Line()[poscol])
 		if err != nil { return data, err }
 
-		freq, err := strconv.ParseFloat(s.Line()[freqcol], 64)
-		if err == nil && s.Line()[tissuecol] == "blood" {
+		var freq float64
+		var err1 error
+		var err2 error
+		var hits float64
+		var count float64
+
+		if use_hits {
+			hits , err1 = strconv.ParseFloat(s.Line()[hitscol], 64)
+			count , err2 = strconv.ParseFloat(s.Line()[countcol], 64)
+			if count != 0 {
+				freq = hits / count
+			} else {
+				freq = 0
+			}
+		} else {
+			freq, err1 = strconv.ParseFloat(s.Line()[freqcol], 64)
+		}
+		if err1 == nil && err2 == nil && (s.Line()[tissuecol] == "blood" || s.Line()[tissuecol] == "Blood") {
 			entry := data_entry {
 				chrpos: chrpos {
 					chrom: s.Line()[chromcol],
@@ -167,6 +199,8 @@ func bloodsd_all(p posmap) (err error) {
 
 func main() {
 	datapath := flag.String("i", "", "input data path")
+	use_hits := flag.Bool("H", false, "Use fraction of hits over counts (for Illumina allele frequency data.")
+	use_count := flag.Bool("c", false, "Use count (for Illumina coverage data.")
 	flag.Parse()
 
 	var dataconn *gzip.Reader
@@ -175,7 +209,7 @@ func main() {
 	if err != nil { panic(err) }
 	dataconn, err = gzip.NewReader(datafileconn)
 	if err != nil { panic(err) }
-	data, err := parse_data(dataconn)
+	data, err := parse_data(dataconn, *use_hits, *use_count)
 	if err != nil { panic(err) }
 	dataconn.Close()
 	datafileconn.Close()
