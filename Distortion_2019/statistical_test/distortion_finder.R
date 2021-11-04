@@ -49,6 +49,8 @@ get_args <- function() {
     parser$add_argument("-N", "--pdf_title3", default="T-test of deviation from lm (FDR-corrected)", help="Title for pdf.")
     parser$add_argument("-t", "--test", default="freq_f", help="Statistical test to perform (options are freq_f, freq_f_ill, coverage_t, coverage_t_cov, coverage_t_ill, coverage_t_cov_ill)")
     parser$add_argument("-r", "--rename", default=FALSE, help="Rename columns to match standard", action="store_true")
+    parser$add_argument("-w", "--window", default="1000000", help="Window size (only used for autosomal allele frequency f-test).")
+    parser$add_argument("-s", "--step", default="100000", help="Window step distance (only used for autosomal allele frequency f-test).")
     args <- parser$parse_args()
     return(args)
 }
