@@ -3,6 +3,7 @@
 library(ggplot2)
 library(argparse)
 library(data.table)
+library(biglm)
 suppressMessages(library(utils))
 suppressMessages(library(backports))
 suppressMessages(library(data.table))
@@ -97,7 +98,7 @@ run_freq_f <- function(args) {
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
 
     print(data)
-    l = lm(data, formula = freq_nor ~ sample + tissue)
+    l = biglm(data=data, formula = freq_nor ~ sample + tissue)
     p = predict(l, data)
 
     data$p = p
@@ -171,7 +172,7 @@ run_coverage_t <- function(args) {
 
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
 
-    l = lm(data, formula = freq_nor ~ sample + tissue)
+    l = biglm(data=data, formula = freq_nor ~ sample + tissue)
     p = predict(l, data)
 
     data$p = p
@@ -257,7 +258,7 @@ run_coverage_t_cov <- function(args) {
     data = data[!is.nan(data$freq_nor) & !is.na(data$freq_nor) & !is.infinite(data$freq_nor),]
     print(5.2)
     print(gc())
-    l = lm(data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
+    l = biglm(data=data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
     print(5.3)
     print(gc())
     p = predict(l, data)
