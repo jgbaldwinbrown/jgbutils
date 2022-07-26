@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-# bash combine.sh
-# 
-# cp /home/jgbaldwinbrown/Documents/git_repositories/louse_genome/louse_genome_0.1.1.fasta ./
-# 
-# bash gff2gtf.sh
+bash combine.sh
+
+wget https://github.com/jgbaldwinbrown/c_columbae_genome/raw/main/louse_genome_0.1.1.fasta
+
+bash gff2gtf.sh
 
 snpdat \
 	-i <(pigz -p 8 -c -d allsnps.vcf.gz) \
