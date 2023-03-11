@@ -1,0 +1,2 @@
+/media/jgbaldwinbrown/3564-3063/jgbaldwinbrown/Documents/work_stuff/louse/poolfstat/from_king/bigfile/merged_goods_f0.1_c10.vcf.gz
+/media/jgbaldwinbrown/3564-3063/jgbaldwinbrown/Documents/work_stuff/louse/poolfstat/from_king/bigfile/nonpool_full_shift_bgz2_goods_f0.1_c10.vcf.gz
