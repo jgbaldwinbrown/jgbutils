@@ -14,3 +14,5 @@ snpdat \
 	-s snpdat_summary.txt \
 	-o snpdat_out.txt \
 > snpdat_stdout.txt 2>&1
+
+go run minify_snpdat_out.go
