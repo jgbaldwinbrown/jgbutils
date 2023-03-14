@@ -67,6 +67,33 @@ rename_data <- Data.frame() ? function(data= ? Data.frame()) {
     return(data)
 }
 
+identstats = function(vals, idents) {
+	identlevs = levels(factor(idents))
+	out = data.frame(ident = identlevs)
+
+	out$means = sapply(out$ident, function(anident) {
+		mean(vals[idents == anident])
+	})
+
+	out$sds = sapply(out$ident, function(anident) {
+		sd(vals[idents == anident])
+	})
+
+	return(out)
+}
+
+normby = function(data, valcol, identcol) {
+	vi = data.frame(vals = data[,valcol], idents = data[,identcol])
+	istats = identstats(vi$vals, vi$idents)
+	norms = apply(vi, 1, function(virow) {
+		irow = istats[istats$ident == virow[2],]
+		ret = (as.numeric(virow[1]) - irow$means)
+		# ret = (as.numeric(virow[1]) - irow$means) / irow$sds
+		return(ret)
+	})
+	return(norms)
+}
+
 run_freq_f <- function(args) {
     input = args$input
     txt_out = args$txt_out
@@ -78,7 +105,7 @@ run_freq_f <- function(args) {
     pdf_out3 = args$pdf_out3
     pdf_title3 = args$pdf_title3
     # data <- read.table(input)
-    data <- as.data.frame(fread(input, sep = "\t"))
+    data <- as.data.frame(fread(input))
     if (args$rename) {
         data <-rename_data(data)
 	if (args$test != "freq_f_ill") {
@@ -96,20 +123,19 @@ run_freq_f <- function(args) {
     data$sample = factor(data$sample)
 
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
-    # data = na.omit(data)
+    data = na.omit(data)
     data = data[!is.infinite(data$freq_nor),]
 
-    print(head(data))
+    # print(data)
     # l = biglm(data=data, formula = freq_nor ~ sample + tissue)
-    l = lm(data=data, formula = freq_nor ~ sample + tissue)
-    p = predict(l, data)
+    # l = lm(data=data, formula = freq_nor ~ sample + tissue)
+    data$sample_p = normby(data, "freq_nor", "sample")
+    data$diff = normby(data, "sample_p", "tissue")
 
-    data$p = p
-    data$diff = data$freq_nor - data$p
     data$z = scale(data$diff)
     temp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
     # str(temp)
-    data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+    data$zp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
     data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
 
     head(data)
@@ -155,7 +181,7 @@ run_coverage_t <- function(args) {
     pdf_title2 = args$pdf_title2
 
     # data <- read.table(input)
-    data <- as.data.frame(fread(input, sep = "\t"))
+    data <- as.data.frame(fread(input))
     if (args$rename) {
         data <-rename_data(data)
 	if (args$test != "coverage_t_ill") {
@@ -175,10 +201,9 @@ run_coverage_t <- function(args) {
 
     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
 
-    # data = na.omit(data)
+    data = na.omit(data)
     data = data[!is.infinite(data$freq_nor),]
 
-    print(head(data))
     # l = biglm(data=data, formula = freq_nor ~ sample + tissue)
     l = lm(data=data, formula = freq_nor ~ sample + tissue)
     p = predict(l, data)
@@ -234,20 +259,19 @@ run_coverage_t_cov <- function(args) {
     print(-2)
 
     # data <- read.table(input)
-    data = as.data.frame(fread(input, sep = "\t"))
-    # data <- as.data.frame(fread(input, sep = "\t", colClasses = c(
-    #     "factor",
-    #     "factor",
-    #     "numeric",
-    #     "factor",
-    #     "factor",
-    #     "numeric",
-    #     "factor",
-    #     "numeric",
-    #     "numeric",
-    #     "numeric",
-    #     "numeric"
-    # )))
+    data <- as.data.frame(fread(input, colClasses = c(
+        "factor",
+        "factor",
+        "numeric",
+        "factor",
+        "factor",
+        "numeric",
+        "factor",
+        "numeric",
+        "numeric",
+        "numeric",
+        "numeric"
+    )))
     if (args$rename) {
         data <-rename_data(data)
 	if (args$test != "coverage_t_cov_ill") {
@@ -278,7 +302,6 @@ run_coverage_t_cov <- function(args) {
     data = data[!is.nan(data$freq_nor) & !is.na(data$freq_nor) & !is.infinite(data$freq_nor),]
     print(5.2)
     print(gc())
-    print(head(data))
     # l = biglm(data=data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
     l = lm(data=data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
     print(5.3)
