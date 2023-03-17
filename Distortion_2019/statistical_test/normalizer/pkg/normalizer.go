@@ -1,13 +1,11 @@
-package main
+package normalizer
 
 import (
-	"strings"
 	"strconv"
 	"encoding/csv"
 	"compress/gzip"
 	"io"
 	"os"
-	"flag"
 	"fmt"
 )
 
@@ -245,28 +243,4 @@ func Run(path string, w io.Writer, valcolname string, idcolsnames []string) erro
 	if e != nil { return h(e) }
 
 	return nil
-}
-
-func main() {
-	inpp := flag.String("i", "", "input .gz file")
-	valcolp := flag.String("v", "", "value column name")
-	idcolsp := flag.String("id", "", "id column names, comma-separated")
-	flag.Parse()
-	if *inpp == "" {
-		panic(fmt.Errorf("missing -i"))
-	}
-	if *valcolp == "" {
-		panic(fmt.Errorf("missing -v"))
-	}
-	if *idcolsp == "" {
-		panic(fmt.Errorf("missing -id"))
-	}
-
-	idcols := strings.Split(*idcolsp, ",")
-	if len(idcols) < 1 {
-		panic(fmt.Errorf("could not parse -id %v", *idcolsp))
-	}
-
-	e := Run(*inpp, os.Stdout, *valcolp, idcols)
-	if e != nil { panic(e) }
 }
