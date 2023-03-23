@@ -95,6 +95,9 @@ func TTestCore(mean1, mean2, sd1, sd2, count1, count2 float64) float64 {
 }
 
 func TTestP(t float64, df float64) float64 {
+	if BadDF(df) {
+		return math.NaN()
+	}
 	tdist := distuv.StudentsT{Mu: 0, Sigma: 1, Nu: df}
 	cdf := tdist.CDF(t)
 	if cdf > 0.5 {
@@ -128,14 +131,14 @@ func TTest(w io.Writer, tsums []*TSummary, testset TTestSet) error {
 	sd2 := tsums[i2].Sd(name2)
 
 	count1 := tsums[i1].Counts[name1]
-	count2 := tsums[i2].Sd(name2)
+	count2 := tsums[i2].Counts[name2]
 
 	df := TTestDf(tsums[i1], name1, tsums[i2], name2)
 
 	t := TTestCore(mean1, mean2, sd1, sd2, count1, count2)
 	p := TTestP(t, df)
 
-	fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\n", name1, name2, t, df, p)
+	fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", name1, name2, count1, count2, mean1, mean2, sd1, sd2, t, df, df, p)
 
 	return nil
 }
