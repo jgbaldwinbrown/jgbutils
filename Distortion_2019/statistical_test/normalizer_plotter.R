@@ -1,0 +1,566 @@
+#!/usr/bin/env Rscript
+
+library(ggplot2)
+library(argparse)
+library(data.table)
+
+# pdf(pdf_out,height=1 * plot_nrows,width=3)
+# print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
+# dev.off()
+# pdf(pdf_out2,height=1 * plot_nrows,width=3)
+# print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
+# dev.off()
+
+reformat_f0.1 = function(data) {
+	colnames(data) = c("tissue", "indiv_chrom_tissue_poswin", "f", "df1", "df2", "p")
+	return(data)
+}
+
+reformat_f0.2 = function(data) {
+	colnames(data) = c(
+		"control_tissue",
+		"indiv_chrom_tissue",
+		"count1", "count2",
+		"mean1", "mean2",
+		"sd1", "sd2",
+		"f",
+		"df1",
+		"df2",
+		"p",
+		"indiv",
+		"chrom",
+		"tissue"
+	)
+	return(data)
+}
+
+reformat_f0.2_poswin = function(data) {
+	colnames(data) = c(
+		"control_tissue",
+		"indiv_chrom_tissue_poswin",
+		"count1", "count2",
+		"mean1", "mean2",
+		"sd1", "sd2",
+		"f",
+		"df1",
+		"df2",
+		"p",
+		"indiv",
+		"chrom",
+		"tissue",
+		"poswin"
+	)
+	data$chrom_poswin = paste(data$chrom, data$poswin, sep = "_")
+	return(data)
+}
+
+# tissue	indiv_chrom_tissue_poswin	f	df1	df2	p
+
+# blood	191_1_sperm_190000000	1.7549535830059868	5.282665e+06	22	0.10939681532064749
+# blood	209_2_sperm_46000000	0.5629333072504628	5.282665e+06	56	0.000622801995450467
+# blood	84_9_sperm_107000000	0.5514504116525193	5.282665e+06	77	3.329515998116224e-05
+# blood	6_X_sperm_155000000	0.6217225775477382	5.282665e+06	9	0.21275016519773318
+# blood	62_1_sperm_197000000	0.19548121428896606	5.282665e+06	15	5.498120145846482e-10
+# blood	70_13_sperm_53000000	0.29762558633061886	5.282665e+06	36	8.155758038401044e-11
+# blood	80_3_sperm_90000000	4.515864650101982	5.282665e+06	7	0.038950682427670635
+# blood	113_7_sperm_67000000	0.17752615659361784	5.282665e+06	39	9.729885581306532e-27
+# blood	152_13_sperm_82000000	1.4831885101345024	5.282665e+06	17	0.33684802778537204
+# blood	218_5_sperm_128000000	1.3552737690895076	5.282665e+06	23	0.3786308593922103
+
+
+reformat = function(data, format) {
+	# if (format == "f0.1") {
+	# 	return(reformat_f0.1(data))
+	if (format == "f0.2") {
+		return(reformat_f0.2(data))
+	} else if (format == "f0.2_poswin") {
+		return(reformat_f0.2_poswin(data))
+	}
+	# } else if (format == "t0.1") {
+	# 	return(reformat_t0.1(data))
+	# } else if (format == "t0.2") {
+	# 	return(reformat_t0.2(data))
+	# } else {
+	# 	exit(1)
+	# }
+}
+
+plot_meandiff = function(data, outpath) {
+	g = ggplot(data, aes(chrom, mean2 - mean1)) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpath)
+
+
+	pdf(outpath, width = 4, height = 10)
+	print(g)
+	dev.off()
+}
+
+plot_sddiff = function(data, outpath) {
+	g = ggplot(data, aes(chrom, sd2 - sd1)) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpath)
+
+
+	pdf(outpath, width = 4, height = 10)
+	print(g)
+	dev.off()
+}
+
+plot_meandiff_poswin = function(data, outpath) {
+	g = ggplot(data, aes(chrom_poswin, mean2 - mean1)) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpath)
+
+
+	pdf(outpath, width = 4, height = 10)
+	print(g)
+	dev.off()
+}
+
+plot_sddiff_poswin = function(data, outpath) {
+	g = ggplot(data, aes(chrom_poswin, sd2 - sd1)) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpath)
+
+
+	pdf(outpath, width = 4, height = 10)
+	print(g)
+	dev.off()
+}
+
+plotit = function(data, outpre) {
+	print(data$p)
+	out1 = paste(outpre, "_plot.pdf", sep="")
+	out2 = paste(outpre, "_log10_plot.pdf", sep="")
+	out3 = paste(outpre, "_meandiff_plot.pdf", sep="")
+	out4 = paste(outpre, "_sddiff_plot.pdf", sep="")
+
+	g = ggplot(data, aes(chrom, p)) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpre)
+
+
+	pdf(out1, width = 4, height = 10)
+	print(g)
+	dev.off()
+
+	glog = ggplot(data, aes(chrom, -log10(p))) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpre)
+
+	pdf(out2, width = 4, height = 10)
+	print(glog)
+	dev.off()
+
+	plot_meandiff(data, out3)
+	plot_sddiff(data, out4)
+}
+
+plotit_poswin = function(data, outpre) {
+	print(data$p)
+	out1 = paste(outpre, "_plot.pdf", sep="")
+	out2 = paste(outpre, "_log10_plot.pdf", sep="")
+	out3 = paste(outpre, "_meandiff_plot.pdf", sep="")
+	out4 = paste(outpre, "_sddiff_plot.pdf", sep="")
+
+	g = ggplot(data, aes(chrom_poswin, p)) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpre)
+
+	pdf(out1, width = 4, height = 10)
+	print(g)
+	dev.off()
+
+	glog = ggplot(data, aes(chrom_poswin, -log10(p))) +
+		geom_bar(stat="identity") +
+		facet_grid(indiv ~ tissue) +
+		ggtitle(outpre)
+
+	pdf(out2, width = 4, height = 10)
+	print(glog)
+	dev.off()
+
+	plot_meandiff_poswin(data, out3)
+	plot_sddiff_poswin(data, out4)
+}
+
+main = function() {
+	args = commandArgs(trailingOnly=TRUE)
+	inpath = args[1]
+	format = args[2]
+	myindiv = args[3]
+	outpre = args[4]
+
+	data = as.data.frame(fread(inpath, sep = "\t", header = FALSE))
+	data = reformat(data, format)
+	minidata = data[data$indiv == myindiv,]
+
+	if (format == "f0.2") {
+		plotit(minidata, outpre)
+	} else if (format == "f0.2_poswin") {
+		plotit_poswin(minidata, outpre)
+	}
+}
+
+main()
+
+# #!/usr/bin/env Rscript
+# 
+# library(ggplot2)
+# library(argparse)
+# library(data.table)
+# library(biglm)
+# suppressMessages(library(utils))
+# suppressMessages(library(backports))
+# suppressMessages(library(data.table))
+# deparse1 = getFromNamespace("deparse1", "backports")
+# suppressMessages(library(typed))
+# options(error = quote({dump.frames(to.file=TRUE); q()}))
+# 
+# # subset_mean <- function(dat,x) {
+# # 	mean(dat$freq[dat$pos==x], na.rm=TRUE)
+# # }
+# # 
+# # subset_sd <- function(dat, x) {
+# # 	sd(dat$freq[dat$pos==x], na.rm=TRUE)
+# # }
+# 
+# main <- function() {
+#     args = get_args()
+#     if (args$test == "freq_f") {
+#         run_freq_f(args)
+#     } else if (args$test == "freq_f_ill") {
+#         run_freq_f_ill(args)
+#     } else if (args$test == "coverage_t") {
+#         run_coverage_t(args)
+#     } else if (args$test == "coverage_t_cov") {
+#         run_coverage_t_cov(args)
+#     } else if (args$test == "coverage_t_ill") {
+#         run_coverage_t_ill(args)
+#     } else if (args$test == "coverage_t_cov_ill") {
+#         run_coverage_t_cov_ill(args)
+#     } else {
+#         exit("This test does not exist!")
+#     }
+# }
+# get_args <- function() {
+#     parser <- ArgumentParser()
+#     parser$add_argument("input", help="Input file.")
+#     parser$add_argument("-o", "--txt_out", default="out.txt", help="Output path for lm-corrected data.")
+#     parser$add_argument("-O", "--txt_out2", default="out2.txt", help="Output path for means of lm-corrected data.")
+#     parser$add_argument("-p", "--pdf_out", default="out.pdf", help="Output file for plot of lm-corrected data.")
+#     parser$add_argument("-P", "--pdf_out2", default="out2.pdf", help="Output file for plot of lm-corrected t-test.")
+#     parser$add_argument("-F", "--pdf_out3", default="out3.pdf", help="Output file for plot of lm-corrected t-test (fdr-corrected).")
+#     parser$add_argument("-m", "--pdf_title", default="Chromosome means of deviation from lm", help="Title for pdf.")
+#     parser$add_argument("-M", "--pdf_title2", default="T-test of deviation from lm", help="Title for pdf.")
+#     parser$add_argument("-N", "--pdf_title3", default="T-test of deviation from lm (FDR-corrected)", help="Title for pdf.")
+#     parser$add_argument("-t", "--test", default="freq_f", help="Statistical test to perform (options are freq_f, freq_f_ill, coverage_t, coverage_t_cov, coverage_t_ill, coverage_t_cov_ill)")
+#     parser$add_argument("-r", "--rename", default=FALSE, help="Rename columns to match standard", action="store_true")
+#     parser$add_argument("-w", "--window", default="1000000", help="Window size (only used for autosomal allele frequency f-test).")
+#     parser$add_argument("-s", "--step", default="100000", help="Window step distance (only used for autosomal allele frequency f-test).")
+#     args <- parser$parse_args()
+#     return(args)
+# }
+# 
+# rename_data <- Data.frame() ? function(data= ? Data.frame()) {
+#     Character() ? n
+#     n <- names(data)
+#     n[n=="Chromosome"] <- "chrom"
+#     n[n=="Position"] <- "pos"
+#     n[n=="Indivs"] <- "indiv"
+#     n[n=="unique_id"] <- "sample"
+#     names(data) <- n
+#     return(data)
+# }
+# 
+# run_freq_f <- function(args) {
+#     input = args$input
+#     txt_out = args$txt_out
+#     txt_out2 = args$txt_out2
+#     pdf_out = args$pdf_out
+#     pdf_title = args$pdf_title
+#     pdf_out2 = args$pdf_out2
+#     pdf_title2 = args$pdf_title2
+#     pdf_out3 = args$pdf_out3
+#     pdf_title3 = args$pdf_title3
+#     # data <- read.table(input)
+#     data <- as.data.frame(fread(input, sep = "\t"))
+#     if (args$rename) {
+#         data <-rename_data(data)
+# 	if (args$test != "freq_f_ill") {
+# 		data$freq <- data$value
+# 		# data$freq = data$afrac
+# 	} else {
+# 		data$freq <- data$hits / data$count
+# 	}
+#     } else {
+#         data$freq <- data$hits / data$count
+#     }
+# 
+#     data$pos = factor(data$pos)
+#     data$indiv = factor(data$indiv)
+#     data$sample = factor(data$sample)
+# 
+#     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
+#     # data = na.omit(data)
+#     data = data[!is.infinite(data$freq_nor),]
+# 
+#     print(head(data))
+#     # l = biglm(data=data, formula = freq_nor ~ sample + tissue)
+#     l = lm(data=data, formula = freq_nor ~ sample + tissue)
+#     p = predict(l, data)
+# 
+#     data$p = p
+#     data$diff = data$freq_nor - data$p
+#     data$z = scale(data$diff)
+#     temp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+#     # str(temp)
+#     data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+#     data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
+# 
+#     head(data)
+#     write.table(data, txt_out)
+# 
+#     datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
+#     colnames(datameans) = c("indiv", "chrom", "tissue", "x")
+#     datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
+#     head(datameans)
+# 
+#     a = sapply(datameans$indiv_chrom_tissue,
+#         function(temp){
+#             var.test(data$diff[data$indiv_chrom_tissue == temp],
+#                 data$diff[data$tissue=="blood"])$p.value
+#         }
+#     )
+#     datameans$p = a
+# 
+#     plot_nrows = length(levels(factor(datameans$indiv)))
+# 
+#     pdf(pdf_out,height=1 * plot_nrows,width=3)
+#     print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
+#     dev.off()
+# 
+#     pdf(pdf_out2,height=1 * plot_nrows,width=3)
+#     print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
+#     dev.off()
+# }
+# 
+# run_freq_f_ill <- function(args) {
+# 	run_freq_f(args)
+# }
+# 
+# run_coverage_t <- function(args) {
+#     args <- parser$parse_args()
+# 
+#     input = args$input
+#     txt_out = args$txt_out
+#     txt_out2 = args$txt_out2
+#     pdf_out = args$pdf_out
+#     pdf_title = args$pdf_title
+#     pdf_out2 = args$pdf_out2
+#     pdf_title2 = args$pdf_title2
+# 
+#     # data <- read.table(input)
+#     data <- as.data.frame(fread(input, sep = "\t"))
+#     if (args$rename) {
+#         data <-rename_data(data)
+# 	if (args$test != "coverage_t_ill") {
+# 		data$freq = data$value
+# 		# data$freq = data$afrac
+# 	} else {
+# 		data$freq = data$count
+# 	}
+#     } else {
+#         data$freq = data$count
+#     }
+#     # data$freq = data$hits / data$count
+# 
+#     data$pos = factor(data$pos)
+#     data$indiv = factor(data$indiv)
+#     data$sample = factor(data$sample)
+# 
+#     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
+# 
+#     # data = na.omit(data)
+#     data = data[!is.infinite(data$freq_nor),]
+# 
+#     print(head(data))
+#     # l = biglm(data=data, formula = freq_nor ~ sample + tissue)
+#     l = lm(data=data, formula = freq_nor ~ sample + tissue)
+#     p = predict(l, data)
+# 
+#     data$p = p
+#     data$diff = data$freq_nor - data$p
+#     data$z = scale(data$diff)
+#     temp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+#     str(temp)
+#     data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+#     data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
+# 
+#     head(data)
+#     write.table(data, txt_out)
+# 
+#     datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
+#     colnames(datameans) = c("indiv", "chrom", "tissue", "x")
+#     datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
+#     head(datameans)
+# 
+#     a = sapply(datameans$indiv_chrom_tissue,
+#         function(temp){
+#             t.test(data$diff[data$indiv_chrom_tissue == temp],
+#                 data$diff[data$tissue=="blood"])$p.value
+#         }
+#     )
+#     datameans$p = a
+# 
+#     write.table(datameans, txt_out2)
+# 
+#     plot_nrows = length(levels(factor(datameans$indiv)))
+# 
+#     pdf(pdf_out,height=1 * plot_nrows,width=3)
+#     print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
+#     dev.off()
+# 
+#     pdf(pdf_out2,height=1 * plot_nrows,width=3)
+#     print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
+#     dev.off()
+# }
+# 
+# run_coverage_t_cov <- function(args) {
+#     input = args$input
+#     txt_out = args$txt_out
+#     txt_out2 = args$txt_out2
+#     pdf_out = args$pdf_out
+#     pdf_title = args$pdf_title
+#     pdf_out2 = args$pdf_out2
+#     pdf_title2 = args$pdf_title2
+#     pdf_out3 = args$pdf_out3
+#     pdf_title3 = args$pdf_title3
+# 
+#     print(-2)
+# 
+#     # data <- read.table(input)
+#     data = as.data.frame(fread(input, sep = "\t"))
+#     # data <- as.data.frame(fread(input, sep = "\t", colClasses = c(
+#     #     "factor",
+#     #     "factor",
+#     #     "numeric",
+#     #     "factor",
+#     #     "factor",
+#     #     "numeric",
+#     #     "factor",
+#     #     "numeric",
+#     #     "numeric",
+#     #     "numeric",
+#     #     "numeric"
+#     # )))
+#     if (args$rename) {
+#         data <-rename_data(data)
+# 	if (args$test != "coverage_t_cov_ill") {
+# 		data$freq = data$value
+# 		# data$freq = data$afrac
+# 	} else {
+# 		data$freq = data$count
+# 	}
+#     } else {
+#         data$freq = data$count
+#     }
+#     print(0)
+# 
+#     data$pos = factor(data$pos)
+#     data$indiv = factor(data$indiv)
+#     data$sample = factor(data$sample)
+# 
+#     print(1)
+# 
+#     print(2)
+# 
+#     data$freq_nor = (data$freq - data$bloodmean) / data$bloodsd
+#     print(5)
+#     print(gc())
+# 
+#     print(5.1)
+#     print(gc())
+#     data = data[!is.nan(data$freq_nor) & !is.na(data$freq_nor) & !is.infinite(data$freq_nor),]
+#     print(5.2)
+#     print(gc())
+#     print(head(data))
+#     # l = biglm(data=data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
+#     l = lm(data=data, formula = freq_nor ~ per_chrom_gc_index + sample + tissue)
+#     print(5.3)
+#     print(gc())
+#     p = predict(l, data)
+#     print(6)
+#     print(gc())
+# 
+#     data$p = p
+#     print(7)
+#     data$diff = data$freq_nor - data$p
+#     print(8)
+#     data$z = scale(data$diff)
+#     print(9)
+#     temp = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+#     print(10)
+#     str(temp)
+#     print(11)
+#     data$p = sapply(data$z, function(x){pnorm(-abs(x), mean=0, sd=1, lower.tail=TRUE)})
+#     print(12)
+#     data$indiv_chrom_tissue = paste(data$indiv, data$chrom, data$tissue, sep="_")
+#     print(13)
+# 
+#     head(data)
+#     write.table(data, txt_out)
+# 
+#     print(14)
+#     datameans = aggregate(data$diff, list(data$indiv, data$chrom, data$tissue), mean)
+#     colnames(datameans) = c("indiv", "chrom", "tissue", "x")
+#     datameans$indiv_chrom_tissue = paste(datameans$indiv, datameans$chrom, datameans$tissue, sep="_")
+#     head(datameans)
+#     print(15)
+# 
+#     a = sapply(datameans$indiv_chrom_tissue,
+#         function(temp){
+#             t.test(data$diff[data$indiv_chrom_tissue == temp],
+#                 data$diff[data$tissue=="blood"])$p.value
+#         }
+#     )
+#     datameans$p = a
+# 
+#     print(16)
+#     write.table(datameans, txt_out2)
+# 
+#     print(17)
+#     pdf(pdf_out,height=10,width=3)
+#     print(ggplot(data=datameans, aes(chrom, x)) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title))
+#     dev.off()
+# 
+#     print(18)
+#     pdf(pdf_out2,height=10,width=3)
+#     print(ggplot(data=datameans, aes(chrom, -log10(p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title2))
+#     dev.off()
+# 
+#     datameans$fdr_p = p.adjust(datameans$p, method = "BH")
+# 
+#     print(19)
+#     pdf(pdf_out3,height=10,width=3)
+#     print(ggplot(data=datameans, aes(chrom, -log10(fdr_p))) + geom_bar(stat="identity") + facet_grid(indiv~tissue) + ggtitle(pdf_title3))
+#     dev.off()
+# }
+# 
+# run_coverage_t_ill <- function(args) {
+# 	run_coverage_t(args)
+# }
+# 
+# run_coverage_t_cov_ill <- function(args) {
+# 	run_coverage_t_cov(args)
+# }
+# 
+# main()
