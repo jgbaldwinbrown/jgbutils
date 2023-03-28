@@ -1,6 +1,8 @@
 package normalizer
 
 import (
+	"encoding/csv"
+	"regexp"
 	"strconv"
 	"io"
 	"fmt"
@@ -14,8 +16,10 @@ type TSummary struct {
 }
 
 func (s *TSummary) Add(val float64, id string) {
-	s.NamedValSet.Add(val, id)
-	s.SumSqs[id] += val * val
+	if !math.IsNaN(val) {
+		s.NamedValSet.Add(val, id)
+		s.SumSqs[id] += val * val
+	}
 }
 
 func (s *TSummary) Var(id string) float64 {
@@ -40,6 +44,17 @@ func NewTSummary() *TSummary {
 func CalcTSummary(path string, valcol int, idcolsnames []string, idcols []int, controlsetidx, testsetidx int) ([]*TSummary, []TTestSet, error) {
 	h := handle("CalcTSummary: %w")
 
+	cr, gr, r, e := Open(path)
+	if e != nil { return nil, nil, h(e) }
+	defer r.Close()
+	defer gr.Close()
+
+	return CalcTSummaryFromCsvReader(cr, valcol, idcolsnames, idcols, controlsetidx, testsetidx)
+}
+
+func CalcTSummaryFromCsvReader(cr *csv.Reader, valcol int, idcolsnames []string, idcols []int, controlsetidx, testsetidx int) ([]*TSummary, []TTestSet, error) {
+	h := handle("CalcTSummaryFromCsvReader: %w")
+
 	var tsums []*TSummary
 	for i, idcol := range idcols {
 		tsum := NewTSummary()
@@ -47,11 +62,6 @@ func CalcTSummary(path string, valcol int, idcolsnames []string, idcols []int, c
 		tsum.Idx = idcol
 		tsums = append(tsums, tsum)
 	}
-
-	cr, gr, r, e := Open(path)
-	if e != nil { return nil, nil, h(e) }
-	defer r.Close()
-	defer gr.Close()
 
 	for line, e := cr.Read(); e != io.EOF; line, e = cr.Read() {
 		if e != nil { return tsums, nil, h(e) }
@@ -75,6 +85,50 @@ func CalcTSummary(path string, valcol int, idcolsnames []string, idcols []int, c
 	}
 
 	return tsums, tsets, nil
+}
+
+func CalcTSummaryVsBlood(path string, valcol int, idcolsnames []string, idcols []int, bloodcol int, bloodcolname string) (idtsums []*TSummary, bloodtsum *TSummary, err error) {
+	h := handle("CalcTSummaryVsBlood: %w")
+
+	var tsums []*TSummary
+	for i, idcol := range idcols {
+		tsum := NewTSummary()
+		tsum.ColName = idcolsnames[i]
+		tsum.Idx = idcol
+		tsums = append(tsums, tsum)
+	}
+
+	bloodtsum = NewTSummary()
+	bloodtsum.ColName = bloodcolname
+	bloodtsum.Idx = bloodcol
+	bloodre := regexp.MustCompile(`^[Bb]lood$`)
+
+	cr, gr, r, e := Open(path)
+	if e != nil { return nil, nil, h(e) }
+	defer r.Close()
+	defer gr.Close()
+
+	for line, e := cr.Read(); e != io.EOF; line, e = cr.Read() {
+		if e != nil { return tsums, nil, h(e) }
+
+		if len(line) <= valcol { continue }
+		val, e := strconv.ParseFloat(line[valcol], 64)
+		if e != nil { continue }
+
+		for _, tsum := range tsums {
+			if len(line) <= tsum.Idx { continue }
+			tsum.Add(val, line[tsum.Idx])
+		}
+
+		if len(line) <= bloodtsum.Idx { continue }
+		bname := "notblood"
+		if bloodre.MatchString(line[bloodtsum.Idx]) {
+			bname = "blood"
+		}
+		bloodtsum.Add(val, bname)
+	}
+
+	return tsums, bloodtsum, nil
 }
 
 type TTestItem struct {

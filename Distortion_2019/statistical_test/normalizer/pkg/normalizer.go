@@ -1,6 +1,7 @@
 package normalizer
 
 import (
+	"math"
 	"strconv"
 	"encoding/csv"
 	"compress/gzip"
@@ -27,6 +28,16 @@ func (s *NamedValSet) Mean(id string) float64 {
 	return s.Sums[id] / s.Counts[id]
 }
 
+func OpenCsv(r io.Reader) (*csv.Reader) {
+	cr := csv.NewReader(r)
+	cr.Comma = rune('\t')
+	cr.FieldsPerRecord = -1
+	cr.ReuseRecord = true
+	cr.LazyQuotes = true
+	return cr
+}
+
+
 func Open(path string) (*csv.Reader, *gzip.Reader, *os.File, error) {
 	h := handle("Open: %w")
 
@@ -39,11 +50,7 @@ func Open(path string) (*csv.Reader, *gzip.Reader, *os.File, error) {
 		return nil, nil, nil, h(e)
 	}
 
-	cr := csv.NewReader(gr)
-	cr.Comma = rune('\t')
-	cr.FieldsPerRecord = -1
-	cr.ReuseRecord = true
-	cr.LazyQuotes = true
+	cr := OpenCsv(gr)
 
 	return cr, gr, f, nil
 }
@@ -130,8 +137,10 @@ func CalcMeans(path string, valcol int, idnames []string, idcols []int) ([]*Name
 }
 
 func (s *NamedValSet) Add(val float64, id string) {
-	s.Sums[id] += val
-	s.Counts[id]++
+	if !math.IsNaN(val) {
+		s.Sums[id] += val
+		s.Counts[id]++
+	}
 }
 
 func (s *NamedValSet) AddResid(val float64, line []string, means []*NamedValSet, id string) {

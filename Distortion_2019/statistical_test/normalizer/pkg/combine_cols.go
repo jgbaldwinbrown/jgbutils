@@ -14,7 +14,7 @@ func CombineOne(line []string, cols []int, sep string) (string, error) {
 
 	for _, col := range cols {
 		if len(line) <= col { return "", h(fmt.Errorf("line too short")) }
-		tocombine = append(tocombine, line[col])
+		tocombine = append(tocombine, strings.ReplaceAll(line[col], sep, "."))
 	}
 
 	return strings.Join(tocombine, sep), nil

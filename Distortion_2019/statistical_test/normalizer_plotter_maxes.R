@@ -27,6 +27,25 @@ reformat_f0.2 = function(data) {
 	return(data)
 }
 
+reformat_f0.4 = function(data) {
+	colnames(data) = c(
+		"control_tissue",
+		"indiv_chrom_tissue",
+		"count1", "count2",
+		"mean1", "mean2",
+		"sd1", "sd2",
+		"f",
+		"df1",
+		"df2",
+		"p",
+		"diff",
+		"indiv",
+		"chrom",
+		"tissue"
+	)
+	return(data)
+}
+
 reformat_f0.2_poswin = function(data) {
 	colnames(data) = c(
 		"control_tissue",
@@ -38,6 +57,27 @@ reformat_f0.2_poswin = function(data) {
 		"df1",
 		"df2",
 		"p",
+		"indiv",
+		"chrom",
+		"tissue",
+		"poswin"
+	)
+	data$chrom_poswin = paste(data$chrom, data$poswin, sep = "_")
+	return(data)
+}
+
+reformat_f0.4_poswin = function(data) {
+	colnames(data) = c(
+		"control_tissue",
+		"indiv_chrom_tissue_poswin",
+		"count1", "count2",
+		"mean1", "mean2",
+		"sd1", "sd2",
+		"f",
+		"df1",
+		"df2",
+		"p",
+		"diff",
 		"indiv",
 		"chrom",
 		"tissue",
