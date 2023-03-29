@@ -78,11 +78,11 @@ func parse_data(r io.Reader, use_hits bool, use_count bool) (data dataframe, err
 			return data, fmt.Errorf("Error: column %s not found.", "freq")
 		}
 	}
-	poscol, ok := header["pos"]
+	poscol, ok := header["Position"]
 	if !ok { return data, fmt.Errorf("Error: column %s not found.", "col") }
-	chromcol, ok := header["chrom"]
+	chromcol, ok := header["Chromosome"]
 	if !ok { return data, fmt.Errorf("Error: column %s not found.", "chrom") }
-	samplecol, ok := header["sample"]
+	samplecol, ok := header["unique_id"]
 	if !ok { return data, fmt.Errorf("Error: column %s not found.", "sample") }
 	tissuecol, ok := header["tissue"]
 	if !ok { return data, fmt.Errorf("Error: column %s not found.", "tissue") }
@@ -153,9 +153,9 @@ func print_updated_data(r io.Reader, cmap posmap, o io.Writer) (err error) {
 		header[v] = i
 	}
 
-	poscol, ok := header["pos"]
+	poscol, ok := header["Position"]
 	if !ok { return fmt.Errorf("Error: column %s not found.", "col") }
-	chromcol, ok := header["chrom"]
+	chromcol, ok := header["Chromosome"]
 	if !ok { return fmt.Errorf("Error: column %s not found.", "chrom") }
 
 	for s.Scan() {
@@ -227,43 +227,3 @@ func main() {
 
 	print_updated_data(dataconn, chrpos_map, os.Stdout)
 }
-
-/*
-    pos_stats = data.frame(pos=levels(factor(data_blood$pos)))
-    pos_stats$freq_bloodmeans = sapply(
-        levels(factor(data_blood$pos)), 
-        function(x) {
-            mean(data_blood$freq[data_blood$pos==x], na.rm=TRUE)
-        }
-    )
-    pos_stats$freq_bloodsd = sapply(
-        levels(factor(data_blood$pos)),
-        function(x) {
-            sd(data_blood$freq[data_blood$pos==x], na.rm=TRUE)
-        }
-    )
-
-    print(2)
-    
-    data$freq_bloodmean = apply(data, 1, function(x){pos_stats$freq_bloodmeans[pos_stats$pos==x["pos"]]})
-    print(3)
-    data$freq_bloodsd = apply(data, 1, function(x){pos_stats$freq_bloodsd[pos_stats$pos==x["pos"]]})
-    print(4)
-    
-
-*/
-
-/*
-data := []float64{1.0, 2.1, 3.2, 4.823, 4.1, 5.8}
-
-// you could also use different types like this
-// data := stats.LoadRawData([]int{1, 2, 3, 4, 5})
-// data := stats.LoadRawData([]interface{}{1.1, "2", 3})
-// etc...
-
-median, _ := stats.Median(data)
-fmt.Println(median) // 3.65
-
-roundedMedian, _ := stats.Round(median, 0)
-fmt.Println(roundedMedian) // 4
-*/
