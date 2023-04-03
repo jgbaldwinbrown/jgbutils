@@ -266,10 +266,10 @@ func ScaleFTestPerChrPos(ftest FTestResult, chrPosToProbeMap map[ChrPos][]string
 	h := handle("ScaleFTestPerChrom: %w")
 
 	namefields := strings.Split(ftest.Name2, "_")
-	if len(namefields) < 4 {
+	if len(namefields) < 3 {
 		return ScaledFTest{}, h(fmt.Errorf("len(namefields) < 2"))
 	}
-	chrPos := ChrPos{namefields[1], namefields[3]}
+	chrPos := ChrPos{namefields[1], namefields[2]}
 
 	probes, ok := chrPosToProbeMap[chrPos]
 	if !ok {
