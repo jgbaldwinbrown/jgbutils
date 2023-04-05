@@ -1,8 +1,9 @@
 package main
 
 import (
+	"log"
 	"fmt"
-	"github.com/jgbaldwinbrown/fasttsv"
+	"encoding/csv"
 	"io"
 	"os"
 	"errors"
@@ -28,10 +29,20 @@ type GcData struct {
 }
 
 func get_flags() (f flag_set) {
-	flag.StringVar(&f.Sample, "s", "sample", "Name of column containing sample names.")
-	flag.StringVar(&f.GcCol, "g", "gc_col", "Name of column containing per-chromosome GC fraction.")
-	flag.StringVar(&f.GcPath, "G", "gc_path", "Path to column-separated file containing correlation with GC for each sample.")
+	flag.StringVar(&f.Sample, "s", "", "Name of column containing sample names.")
+	flag.StringVar(&f.GcCol, "g", "", "Name of column containing per-chromosome GC fraction.")
+	flag.StringVar(&f.GcPath, "G", "", "Path to column-separated file containing correlation with GC for each sample.")
 	flag.Parse()
+
+	if f.GcPath == "" {
+		log.Fatal("missing -G")
+	}
+	if f.GcCol == "" {
+		log.Fatal("missing -g")
+	}
+	if f.Sample == "" {
+		log.Fatal("missing -s")
+	}
 	return f
 }
 
@@ -53,52 +64,73 @@ func get_cols(header []string, f flag_set) (cols col_indices, err error) {
 	return cols, err
 }
 
+func NewCsv(r io.Reader) *csv.Reader {
+	cr := csv.NewReader(r)
+	cr.ReuseRecord = true
+	cr.LazyQuotes = true
+	cr.FieldsPerRecord = -1
+	cr.Comma = rune('\t')
+	return cr
+}
+
 func GetGcData(r io.Reader) (map[string]GcData, error) {
 	out := make(map[string]GcData)
 	var err error = nil
-	s := fasttsv.NewScanner(r)
-	s.Scan()
+	cr := NewCsv(r)
+	line, err := cr.Read()
+	if err != nil {
+		return nil, fmt.Errorf("GetGcData: header: %w", err)
+	}
 
-	for s.Scan() {
+	for line, err = cr.Read(); err != io.EOF; line, err = cr.Read() {
+		if err != nil {
+			return nil, fmt.Errorf("GetGcData: line loop: %w", err)
+		}
 		var gc_data GcData
-		gc_data.AsStr = s.Line()[1]
-		gc_data.AsFlo, err = strconv.ParseFloat(s.Line()[1], 64)
+		gc_data.AsStr = line[1]
+		gc_data.AsFlo, err = strconv.ParseFloat(line[1], 64)
 		if err != nil {
 			gc_data.Na = true
 		}
-		out[s.Line()[0]] = gc_data
+		out[line[0]] = gc_data
 	}
-	return out, err
+	return out, nil
 }
 
 func assoc_and_print_all(r io.Reader, w io.Writer, gc_data map[string]GcData, f flag_set) error {
 	var err error = nil
-	s := fasttsv.NewScanner(r)
-	s.Scan()
-	header := make([]string, len(s.Line()))
-	copy(header, s.Line())
+	cr := NewCsv(r)
+
+	line, err := cr.Read()
+	if err != nil { return err }
+
+	header := make([]string, len(line))
+	copy(header, line)
 	cols, err := get_cols(header, f)
 	if err != nil { return err }
 	header = append(header, "sample_gc_corr", "per_chrom_gc_index")
 
-	W := fasttsv.NewWriter(w)
+	W := csv.NewWriter(w)
+	W.Comma = rune('\t')
 	defer W.Flush()
 	W.Write(header)
 
 	outline := make([]string, 0, 0)
 
-	for s.Scan() {
-		gc_corr, ok := gc_data[s.Line()[cols.Sample]]
+	for line, err := cr.Read(); err != io.EOF; line, err = cr.Read() {
+		if err != nil { return err }
+
+		gc_corr, ok := gc_data[line[cols.Sample]]
 		if !ok {
 			gc_corr.AsStr = "NA"
 			gc_corr.Na = true
 		}
 
 		outline = outline[:0]
-		outline = append(outline, s.Line()...)
+		outline = append(outline, line...)
 		outline = append(outline, gc_corr.AsStr)
 
-		chrom_gc_frac, err := strconv.ParseFloat(s.Line()[cols.Gc], 64)
+		chrom_gc_frac, err := strconv.ParseFloat(line[cols.Gc], 64)
 		if (err != nil) || gc_corr.Na {
 			outline = append(outline, "NA")
 		} else {

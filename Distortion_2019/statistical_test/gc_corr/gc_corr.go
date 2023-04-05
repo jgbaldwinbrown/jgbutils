@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/montanaflynn/stats"
-	"github.com/jgbaldwinbrown/fasttsv"
+	"encoding/csv"
 	"io"
 	"os"
 	"strconv"
@@ -58,19 +58,35 @@ func get_cols(header []string, f flag_set) (cols col_indices, err error) {
 	return cols, err
 }
 
+func NewCsv(r io.Reader) *csv.Reader {
+	cr := csv.NewReader(r)
+	cr.LazyQuotes = true
+	cr.FieldsPerRecord = -1
+	cr.Comma = rune('\t')
+	cr.ReuseRecord = true
+	return cr
+}
+
 func GetData(r io.Reader, f flag_set) (map[string]*Datas, error) {
 	out := make(map[string]*Datas)
 	var err error = nil
-	s := fasttsv.NewScanner(r)
-	s.Scan()
-	header := make([]string, len(s.Line()))
-	copy(header, s.Line())
+
+	cr := NewCsv(r)
+
+	line, err := cr.Read()
+	if err != nil { return nil, err }
+
+	header := make([]string, len(line))
+	copy(header, line)
 	cols, err := get_cols(header, f)
-	for s.Scan() {
-		sample_name := s.Line()[cols.Sample]
-		f1, err := strconv.ParseFloat(s.Line()[cols.Intensity], 64)
+
+	for line, err = cr.Read(); err != io.EOF; line, err = cr.Read() {
+		if err != nil { return nil, fmt.Errorf("GetData inside line reading loop: %w", err) }
+
+		sample_name := line[cols.Sample]
+		f1, err := strconv.ParseFloat(line[cols.Intensity], 64)
 		if err != nil { continue }
-		f2, err := strconv.ParseFloat(s.Line()[cols.ChromGC], 64)
+		f2, err := strconv.ParseFloat(line[cols.ChromGC], 64)
 		if err != nil { continue }
 
 		if _, ok := out[sample_name] ; !ok {
@@ -79,7 +95,7 @@ func GetData(r io.Reader, f flag_set) (map[string]*Datas, error) {
 		out[sample_name].Intensity = append(out[sample_name].Intensity, f1)
 		out[sample_name].ChromGC = append(out[sample_name].ChromGC, f2)
 	}
-	return out, err
+	return out, nil
 }
 
 func corr_all(data map[string]*Datas) (map[string]float64, error) {
