@@ -1,6 +1,8 @@
 package normalizer
 
 import (
+	"math"
+	// "log"
 	"compress/gzip"
 	"os"
 	"flag"
@@ -204,11 +206,14 @@ func MeanSlope(probes []string, probeToCoeffMap map[string][]float64) (float64, 
 		coeffs, ok := probeToCoeffMap[probe]
 		if !ok {
 			// return 0, fmt.Errorf("MeanSlope: probe %v not in map", probe)
+			// log.Printf("MeanSlope: probe %v not in map", probe)
 			continue
 		}
 		slope := coeffs[1]
-		sum += slope
-		count++
+		if !math.IsNaN(slope) {
+			sum += slope
+			count++
+		}
 	}
 
 	return sum / count, nil
@@ -225,7 +230,7 @@ func ScaleMeanDiff(ftest FTestResult, slope float64) float64 {
 	return diff * slope
 }
 
-func ScaleFTestPerChrom(ftest FTestResult, chrToProbeMap map[string][]string, probeToCoeffMap map[string][]float64) (ScaledFTest, error) {
+func ScaleFTestPerChrom(ftest FTestResult, chrToProbeMap map[string][]string, probeToCoeffMap map[string][]float64, illfixchrnames bool) (ScaledFTest, error) {
 	h := handle("ScaleFTestPerChrom: %w")
 
 	namefields := strings.Split(ftest.Name2, "_")
@@ -233,6 +238,9 @@ func ScaleFTestPerChrom(ftest FTestResult, chrToProbeMap map[string][]string, pr
 		return ScaledFTest{}, h(fmt.Errorf("len(namefields) < 2"))
 	}
 	chr := namefields[1]
+	if illfixchrnames {
+		chr = strings.Replace(chr, ".", "_", 1)
+	}
 
 	probes, ok := chrToProbeMap[chr]
 	if !ok {
@@ -242,19 +250,22 @@ func ScaleFTestPerChrom(ftest FTestResult, chrToProbeMap map[string][]string, pr
 	meanSlope, e := MeanSlope(probes, probeToCoeffMap)
 	if e != nil { return ScaledFTest{}, h(e) }
 
+	ssd := ScaleSdDiff(ftest, meanSlope)
+	// fmt.Fprintf(os.Stderr, "probes: %v; meanSlope: %v; ssd: %v\n", probes, meanSlope, ssd)
+
 	return ScaledFTest {
 		ftest.Name1,
 		ftest.Name2,
-		ScaleSdDiff(ftest, meanSlope),
+		ssd,
 	}, nil
 }
 
-func ScaleFTestsPerChrom(ftests []FTestResult, chrToProbeMap map[string][]string, probeToCoeffMap map[string][]float64) ([]ScaledFTest, error) {
+func ScaleFTestsPerChrom(ftests []FTestResult, chrToProbeMap map[string][]string, probeToCoeffMap map[string][]float64, illfixchrnames bool) ([]ScaledFTest, error) {
 	h := handle("ScaleFTestsPerChrom: %w")
 	scaled := []ScaledFTest{}
 
 	for _, ftest := range ftests {
-		scaledone, e := ScaleFTestPerChrom(ftest, chrToProbeMap, probeToCoeffMap)
+		scaledone, e := ScaleFTestPerChrom(ftest, chrToProbeMap, probeToCoeffMap, illfixchrnames)
 		if e != nil { return nil, h(e) }
 		scaled = append(scaled, scaledone)
 	}
@@ -262,14 +273,18 @@ func ScaleFTestsPerChrom(ftests []FTestResult, chrToProbeMap map[string][]string
 	return scaled, nil
 }
 
-func ScaleFTestPerChrPos(ftest FTestResult, chrPosToProbeMap map[ChrPos][]string, probeToCoeffMap map[string][]float64) (ScaledFTest, error) {
-	h := handle("ScaleFTestPerChrom: %w")
+func ScaleFTestPerChrPos(ftest FTestResult, chrPosToProbeMap map[ChrPos][]string, probeToCoeffMap map[string][]float64, illfixchrnames bool) (ScaledFTest, error) {
+	h := handle("ScaleFTestPerChrPos: %w")
 
 	namefields := strings.Split(ftest.Name2, "_")
 	if len(namefields) < 3 {
 		return ScaledFTest{}, h(fmt.Errorf("len(namefields) < 2"))
 	}
-	chrPos := ChrPos{namefields[1], namefields[2]}
+	chr := namefields[1]
+	if illfixchrnames {
+		chr = strings.Replace(chr, ".", "_", 1)
+	}
+	chrPos := ChrPos{chr, namefields[2]}
 
 	probes, ok := chrPosToProbeMap[chrPos]
 	if !ok {
@@ -279,19 +294,21 @@ func ScaleFTestPerChrPos(ftest FTestResult, chrPosToProbeMap map[ChrPos][]string
 	meanSlope, e := MeanSlope(probes, probeToCoeffMap)
 	if e != nil { return ScaledFTest{}, h(e) }
 
+	ssd := ScaleSdDiff(ftest, meanSlope)
+	// fmt.Fprintf(os.Stderr, "probes: %v; meanSlope: %v; ssd: %v\n", probes, meanSlope, ssd)
 	return ScaledFTest {
 		ftest.Name1,
 		ftest.Name2,
-		ScaleSdDiff(ftest, meanSlope),
+		ssd,
 	}, nil
 }
 
-func ScaleFTestsPerChrPos(ftests []FTestResult, chrPosToProbeMap map[ChrPos][]string, probeToCoeffMap map[string][]float64) ([]ScaledFTest, error) {
+func ScaleFTestsPerChrPos(ftests []FTestResult, chrPosToProbeMap map[ChrPos][]string, probeToCoeffMap map[string][]float64, illfixchrnames bool) ([]ScaledFTest, error) {
 	h := handle("ScaleFTestsPerChrom: %w")
 	scaled := []ScaledFTest{}
 
 	for _, ftest := range ftests {
-		scaledone, e := ScaleFTestPerChrPos(ftest, chrPosToProbeMap, probeToCoeffMap)
+		scaledone, e := ScaleFTestPerChrPos(ftest, chrPosToProbeMap, probeToCoeffMap, illfixchrnames)
 		if e != nil { return nil, h(e) }
 		scaled = append(scaled, scaledone)
 	}
@@ -395,10 +412,77 @@ func PrintHeadOf2(w io.Writer, ttest bool, winsize int) error {
 	return e
 }
 
+func ReadFtestsChr(ftests []FTestResult, illfixchrnames bool) ([]ProbeChrPos, error) {
+	var out []ProbeChrPos
+	for _, ft := range ftests {
+		spl := strings.Split(ft.Name2, "_")
+		if len(spl) < 2 {
+			return nil, fmt.Errorf("ReadFtestsChrPos: len(spl) %v < 3; spl: %v", len(spl), spl)
+		}
+		chr := spl[1]
+		if illfixchrnames {
+			chr = strings.Replace(chr, ".", "_", 1)
+		}
+		out = append(out, ProbeChrPos {
+			Probe: chr,
+			ChrPos: ChrPos {
+				Chr: chr,
+				Pos: "",
+			},
+		})
+	}
+	return out, nil
+}
+
+func ReadModelsChrPos(models []Model, illfixchrnames bool) ([]ProbeChrPos, error) {
+	var out []ProbeChrPos
+	for _, m := range models {
+		spl := strings.Split(m.Name, "_")
+		if len(spl) < 3 {
+			return nil, fmt.Errorf("ReadFtestsChrPos: len(spl) %v < 3; spl: %v", len(spl), spl)
+		}
+		chr := spl[0] + "_" + spl[1]
+		// if illfixchrnames {
+		// 	chr = strings.Replace(chr, ".", "_", 1)
+		// }
+		out = append(out, ProbeChrPos {
+			Probe: m.Name,
+			ChrPos: ChrPos {
+				Chr: chr,
+				Pos: spl[2],
+			},
+		})
+	}
+	return out, nil
+}
+
+func ReadFtestsChrPos(ftests []FTestResult, illfixchrnames bool) ([]ProbeChrPos, error) {
+	var out []ProbeChrPos
+	for _, ft := range ftests {
+		spl := strings.Split(ft.Name2, "_")
+		if len(spl) < 3 {
+			return nil, fmt.Errorf("ReadFtestsChrPos: len(spl) %v < 3; spl: %v", len(spl), spl)
+		}
+		chr := spl[1]
+		if illfixchrnames {
+			chr = strings.Replace(chr, ".", "_", 1)
+		}
+		out = append(out, ProbeChrPos {
+			Probe: chr + "_" + spl[2],
+			ChrPos: ChrPos {
+				Chr: chr,
+				Pos: spl[2],
+			},
+		})
+	}
+	return out, nil
+}
 
 func RunScaleFTests() {
 	pheadp := flag.Bool("ph", false, "Print header for output format")
 	probepp := flag.String("p", "", "probe info path")
+	illfixchrsp := flag.Bool("ill", false, "fix illumina chromosome names")
+	chrposdirectp := flag.Int("cp", -1, "get chromosome and position from specified column, ignore probe info path")
 	modelpp := flag.String("m", "", "probe model path")
 	winsizep := flag.Int("w", -1, "window size if using chrpos")
 	ttestp := flag.Bool("t", false, "Do per-chromosome t-test instead of f-test")
@@ -410,7 +494,7 @@ func RunScaleFTests() {
 		return
 	}
 
-	if *probepp == "" && !*ttestp {
+	if *probepp == "" && !*ttestp && *chrposdirectp == -1 {
 		panic(fmt.Errorf("missing -p"))
 	}
 	if *modelpp == "" {
@@ -432,18 +516,34 @@ func RunScaleFTests() {
 		scaled, e = ScaleTTestsPerChrom(ftests, models[0].Coeffs[1])
 		if e != nil { panic(e) }
 	} else if *winsizep == -1 {
-		probeset, e := ReadProbeChrPos(*probepp)
+		var probeset []ProbeChrPos
+		if *chrposdirectp == -1 {
+			probeset, e = ReadProbeChrPos(*probepp)
+		} else {
+			probeset, e = ReadModelsChrPos(models, *illfixchrsp)
+		}
 		if e != nil { panic(e) }
 
 		chrtoprobe := MapChrToProbes(probeset)
-		scaled, e = ScaleFTestsPerChrom(ftests, chrtoprobe, MapProbeToCoeffs(models))
+		// log.Printf("chrtoprobe: %v\n", chrtoprobe)
+		modelmap := MapProbeToCoeffs(models)
+		// log.Printf("modelmap: %v\n", modelmap)
+		scaled, e = ScaleFTestsPerChrom(ftests, chrtoprobe, modelmap, *illfixchrsp)
 		if e != nil { panic(e) }
 	} else {
-		probeset, e := ReadProbeChrPos(*probepp)
+		var probeset []ProbeChrPos
+		if *chrposdirectp == -1 {
+			probeset, e = ReadProbeChrPos(*probepp)
+		} else {
+			probeset, e = ReadModelsChrPos(models, *illfixchrsp)
+		}
 		if e != nil { panic(e) }
 
 		chrpostoprobe := MapChrPosWinToProbe(probeset, *winsizep)
-		scaled, e = ScaleFTestsPerChrPos(ftests, chrpostoprobe, MapProbeToCoeffs(models))
+		// log.Printf("chrpostoprobe: %v\n", chrpostoprobe)
+		modelmap := MapProbeToCoeffs(models)
+		// log.Printf("modelmap: %v\n", modelmap)
+		scaled, e = ScaleFTestsPerChrPos(ftests, chrpostoprobe, modelmap, *illfixchrsp)
 		if e != nil { panic(e) }
 	}
 
@@ -467,7 +567,7 @@ func ScaleTTestPerChrom(ftest FTestResult, slope float64) (ScaledFTest, error) {
 }
 
 func ScaleTTestsPerChrom(ftests []FTestResult, slope float64) ([]ScaledFTest, error) {
-	h := handle("ScaleFTestsPerChrom: %w")
+	h := handle("ScaleTTestsPerChrom: %w")
 	scaled := []ScaledFTest{}
 
 	for _, ftest := range ftests {

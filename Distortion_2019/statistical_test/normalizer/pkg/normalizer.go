@@ -24,6 +24,14 @@ type NamedValSet struct {
 	Counts map[string]float64
 }
 
+func (s *NamedValSet) MeanOk(id string) bool {
+	_, ok := s.Sums[id]
+	if !ok { return false }
+	_, ok = s.Counts[id]
+	if !ok { return false }
+	return true
+}
+
 func (s *NamedValSet) Mean(id string) float64 {
 	return s.Sums[id] / s.Counts[id]
 }
@@ -228,7 +236,8 @@ func Norm(path string, w io.Writer, valcol int, means []*NamedValSet) error {
 
 		norm, e := NormOne(line, valcol, means)
 		if e != nil { continue }
-		line = append(line, fmt.Sprintf("%f", norm))
+		line = append(line, fmt.Sprintf("%v", norm))
+		// line = append(line, fmt.Sprintf("%f", norm))
 		e = cw.Write(line)
 		if e != nil { continue }
 	}

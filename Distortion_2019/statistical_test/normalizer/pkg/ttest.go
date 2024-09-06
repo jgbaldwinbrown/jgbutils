@@ -73,6 +73,7 @@ func CalcTSummaryFromCsvReader(cr *csv.Reader, valcol int, idcolsnames []string,
 		for _, tsum := range tsums {
 			if len(line) <= tsum.Idx { continue }
 			tsum.Add(val, line[tsum.Idx])
+			// log.Printf("adding val %v to ident line[tsum.Idx]: %v\n", val, line[tsum.Idx])
 		}
 	}
 

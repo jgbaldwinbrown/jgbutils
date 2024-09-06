@@ -11,6 +11,8 @@ func main() {
 	inpp := flag.String("i", "", "input .gz file")
 	valcolp := flag.String("v", "", "value column name")
 	indepcolp := flag.String("indep", "", "independent predictor column name")
+	categorycolp := flag.String("c", "", "category column when running het")
+	hetp := flag.Bool("het", false, "measure genotype rather than chromosome")
 	flag.Parse()
 	if *inpp == "" {
 		panic(fmt.Errorf("missing -i"))
@@ -22,6 +24,6 @@ func main() {
 		panic(fmt.Errorf("missing -indep"))
 	}
 
-	e := normalizer.RunLinearModelCoverage(*inpp, os.Stdout, *valcolp, *indepcolp)
+	e := normalizer.RunLinearModelCoverage(*inpp, os.Stdout, *valcolp, *indepcolp, *categorycolp, *hetp)
 	if e != nil { panic(e) }
 }

@@ -44,7 +44,8 @@ func NormVar(path string, w io.Writer, valcol int, tsum *TSummary) error {
 
 		norm, e := NormVarOne(line, valcol, tsum)
 		if e != nil { continue }
-		line = append(line, fmt.Sprintf("%f", norm))
+		line = append(line, fmt.Sprintf("%v", norm))
+		// line = append(line, fmt.Sprintf("%f", norm))
 		e = cw.Write(line)
 		if e != nil { continue }
 	}
@@ -52,7 +53,29 @@ func NormVar(path string, w io.Writer, valcol int, tsum *TSummary) error {
 	return nil
 }
 
-func RunNormVar(path string, w io.Writer, valcolname string, idcolname string) error {
+func PrintTsumStats(w io.Writer, tsum *TSummary) (n int, err error) {
+	fmt.Println("name\tmean\tvar\tsd")
+	for name, _ := range tsum.Sums {
+		onen, e := fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", name, tsum.Mean(name), tsum.Var(name), tsum.Sd(name))
+		n += onen
+		if e != nil {
+			return n, fmt.Errorf("PrintTsumStats: %w", e)
+		}
+	}
+	return n, nil
+}
+
+func PrintTsumStatsPath(path string, tsum *TSummary) (n int, err error) {
+	h := handle("PrintTsumStatsPath: %w")
+
+	w, e := os.Create(path)
+	if e != nil { return 0, h(e) }
+	defer w.Close()
+
+	return PrintTsumStats(w, tsum)
+}
+
+func RunNormVar(path string, w io.Writer, valcolname, idcolname, statpath string, norun bool) error {
 	h := handle("RunNormVar: Step: %v; %w")
 
 	valcol, e := ValCol(path, valcolname)
@@ -65,13 +88,15 @@ func RunNormVar(path string, w io.Writer, valcolname string, idcolname string) e
 	if e != nil { return h("tsums", e) }
 	tsum := tsums[0]
 
-	// fmt.Println("means and vars:")
-	// for name, _ := range tsum.Sums {
-	// 	fmt.Printf("name: %v; mean: %v; var: %v; sd: %v\n", name, tsum.Mean(name), tsum.Var(name), tsum.Sd(name))
-	// }
+	if statpath != "" {
+		_, e = PrintTsumStatsPath(statpath, tsum)
+		if e != nil { return h("tsum stat print", e) }
+	}
 
-	e = NormVar(path, w, valcol, tsum)
-	if e != nil { return h("normvar", e) }
+	if !norun {
+		e = NormVar(path, w, valcol, tsum)
+		if e != nil { return h("normvar", e) }
+	}
 
 	return nil
 }
@@ -80,6 +105,8 @@ func RunFullNormVar() {
 	inpp := flag.String("i", "", "input .gz file")
 	valcolp := flag.String("v", "", "value column name")
 	idcolp := flag.String("id", "", "id column name")
+	norunp := flag.Bool("n", false, "do not run the normalization; just calculate summary statistics")
+	statpathp := flag.String("s", "", "Path to print statistics")
 	flag.Parse()
 	if *inpp == "" {
 		panic(fmt.Errorf("missing -i"))
@@ -91,6 +118,6 @@ func RunFullNormVar() {
 		panic(fmt.Errorf("missing -id"))
 	}
 
-	e := RunNormVar(*inpp, os.Stdout, *valcolp, *idcolp)
+	e := RunNormVar(*inpp, os.Stdout, *valcolp, *idcolp, *statpathp, *norunp)
 	if e != nil { panic(e) }
 }

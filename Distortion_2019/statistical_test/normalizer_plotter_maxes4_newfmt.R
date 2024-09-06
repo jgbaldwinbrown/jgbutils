@@ -72,7 +72,9 @@ reformat = function(data, format, plotvar, colorvar, idvar, transform) {
 	print(head(data, 2))
 	print("colorvar:")
 	print(colorvar)
-	if (colorvar != "expected_freq") {
+	if (colorvar == "") {
+		data$tocolor = rep("", nrow(data))
+	} else if (colorvar != "expected_freq") {
 		data$tocolor = as.character(data[,colorvar])
 	} else {
 		data$tocolor = data[,colorvar]

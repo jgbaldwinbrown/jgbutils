@@ -44,7 +44,8 @@ func ColSub(path string, w io.Writer, valcol, tosubcol int) error {
 
 		subbed, e := SubOne(line, valcol, tosubcol)
 		if e != nil { continue }
-		line = append(line, fmt.Sprintf("%f", subbed))
+		line = append(line, fmt.Sprintf("%v", subbed))
+		// line = append(line, fmt.Sprintf("%f", subbed))
 		e = cw.Write(line)
 		if e != nil { continue }
 	}

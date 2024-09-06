@@ -1,6 +1,7 @@
 package normalizer
 
 import (
+	"math"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -49,6 +50,9 @@ type LinearModeler struct {
 }
 
 func (m *LinearModeler) Add(y, x float64) {
+	if math.IsNaN(y) || math.IsNaN(x) {
+		return
+	}
 	xdiff := x - m.XMean
 	ydiff := y - m.YMean
 	m.XDiffSqSum += xdiff * xdiff
@@ -62,7 +66,19 @@ func (l *LinearModeler) MB() (m float64, b float64) {
 	return m, b
 }
 
+func MustParseFloat(str string) float64 {
+	val, e := strconv.ParseFloat(str, 64)
+	if e != nil {
+		val = math.NaN()
+	}
+	return val
+}
+
 func LinearModelCore(path string, valcol, indepcol int, vmean, imean float64) (m, b float64, err error) {
+	return LinearModelTransformCore(path, valcol, indepcol, vmean, imean, MustParseFloat)
+}
+
+func LinearModelTransformCore(path string, valcol, indepcol int, vmean, imean float64, transformFunc func(string) float64) (m, b float64, err error) {
 	h := handle("LinearModelCore: %w")
 
 	l := &LinearModeler{XMean: imean, YMean: vmean}
@@ -77,16 +93,16 @@ func LinearModelCore(path string, valcol, indepcol int, vmean, imean float64) (m
 
 
 		if len(line) <= valcol { continue }
-		val, e := strconv.ParseFloat(line[valcol], 64)
-		if e != nil { continue }
+		val := transformFunc(line[valcol])
 
 		if len(line) <= indepcol { continue }
-		indep, e := strconv.ParseFloat(line[indepcol], 64)
-		if e != nil { continue }
+		indep := transformFunc(line[indepcol])
 
+		// fmt.Fprintf(os.Stderr, "adding: val: %v; indep: %v; modeler: %v\n", val, indep, *l)
 		l.Add(val, indep)
 	}
 
+	// fmt.Fprintf(os.Stderr, "modeler: %v\n", *l)
 	m_out, b_out := l.MB()
 	return m_out, b_out, nil
 
