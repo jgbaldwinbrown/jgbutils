@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// Parse an info table line
 func ParseInfoLine(line []string, keycol int) (key string, err error) {
 	h := handle("ParseExpSexLine: %w")
 

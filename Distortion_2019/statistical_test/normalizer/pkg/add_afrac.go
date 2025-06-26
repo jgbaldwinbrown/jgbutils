@@ -7,6 +7,7 @@ import (
 	"encoding/csv"
 )
 
+// Append allele frequency to line based on the hits and counts in hitcol and countcol.
 func AddAfracOne(line []string, hitcol, countcol int) (float64, error) {
 	h := handle("CombineOne: %w")
 
@@ -21,6 +22,7 @@ func AddAfracOne(line []string, hitcol, countcol int) (float64, error) {
 	return hits / count, nil
 }
 
+// Run AddAfracOne on all lines in the file in path, then write to w.
 func AddAfrac(path string, w io.Writer, hitcol, countcol int) error {
 	h := handle("AddAfrac: %w")
 
@@ -52,6 +54,7 @@ func AddAfrac(path string, w io.Writer, hitcol, countcol int) error {
 	return nil
 }
 
+// Run AddAfrac on named columns
 func RunAddAfrac(path string, w io.Writer, hitcolname, countcolname string) error {
 	h := handle("RunAddAfrac: %w")
 
